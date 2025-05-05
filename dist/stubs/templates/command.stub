@@ -1,0 +1,30 @@
+import { BaseCommand } from "../command/base-command"
+import { Command } from "../decorators/command.decorator"
+import { Argument } from "../decorators/argument.decorator"
+import { Option } from "../decorators/option.decorator"
+
+/**
+ * {{className}} implementation
+ *
+ * {{description}}
+ */
+@Command({
+  name: "{{commandName}}",
+  description: "{{description}}",
+})
+export class {{className}} extends BaseCommand {
+  /**
+   * Executes the command
+   *
+   * @returns {Promise<number>} The exit code
+   */
+  public async execute(): Promise<number> {
+    try {
+      this.line("{{commandName}} command executed!")
+      return BaseCommand.SUCCESS
+    } catch (error) {
+      this.error(`An error occurred: ${error instanceof Error ? error.message : String(error)}`)
+      return BaseCommand.FAILURE
+    }
+  }
+}

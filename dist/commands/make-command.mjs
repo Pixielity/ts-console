@@ -1,0 +1,745 @@
+import * as path from 'path';
+import * as fs from 'fs';
+import chalk from 'chalk';
+import { Container, injectable, inject } from 'inversify';
+import { IStubGenerator, ICommand, QuestionType } from '@pixielity/ts-types';
+import 'reflect-metadata';
+import inquirer from 'inquirer';
+
+/**
+ * @pixielity/ts-console v1.0.0
+ * 
+ * Advanced console toolkit for Node.js applications
+ * 
+ * @license MIT
+ * @copyright 2025 Your Name <your.email@example.com>
+ */
+
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+
+// src/input/input.ts
+var Input = class {
+  /**
+   * Creates a new Input instance
+   *
+   * @param {string[]} argv - The command line arguments
+   */
+  constructor(argv) {
+    /**
+     * Map of argument names to values
+     * @private
+     */
+    this.args = {};
+    /**
+     * Map of option names to values
+     * @private
+     */
+    this.opts = {};
+    this.parse(argv);
+  }
+  /**
+   * Gets the command name from the input
+   *
+   * @returns {string | undefined} The command name or undefined if not provided
+   */
+  getCommandName() {
+    return this.commandName;
+  }
+  /**
+   * Gets an argument value by name
+   *
+   * @param {string} name - The name of the argument
+   * @returns {string | undefined} The argument value or undefined if not provided
+   */
+  getArgument(name) {
+    return this.args[name];
+  }
+  /**
+   * Gets all arguments
+   *
+   * @returns {Record<string, string>} Map of argument names to values
+   */
+  getArguments() {
+    return { ...this.args };
+  }
+  /**
+   * Gets an option value by name
+   *
+   * @param {string} name - The name of the option
+   * @returns {string | boolean | undefined} The option value or undefined if not provided
+   */
+  getOption(name) {
+    return this.opts[name];
+  }
+  /**
+   * Gets all options
+   *
+   * @returns {Record<string, string | boolean>} Map of option names to values
+   */
+  getOptions() {
+    return { ...this.opts };
+  }
+  /**
+   * Checks if an option is set
+   *
+   * @param {string} name - The name of the option
+   * @returns {boolean} True if the option is set, false otherwise
+   */
+  hasOption(name) {
+    return name in this.opts;
+  }
+  /**
+   * Parses the command line arguments
+   *
+   * @param {string[]} argv - The command line arguments
+   * @private
+   */
+  parse(argv) {
+    if (argv.length === 0) {
+      return;
+    }
+    this.commandName = argv[0];
+    let i = 1;
+    let currentArgName = 0;
+    while (i < argv.length) {
+      const arg = argv[i];
+      if (arg.startsWith("--")) {
+        const optName = arg.substring(2);
+        if (optName.includes("=")) {
+          const [name, value] = optName.split("=", 2);
+          this.opts[name] = value;
+        } else {
+          if (i + 1 < argv.length && !argv[i + 1].startsWith("-")) {
+            this.opts[optName] = argv[i + 1];
+            i++;
+          } else {
+            this.opts[optName] = true;
+          }
+        }
+      } else if (arg.startsWith("-")) {
+        const optName = arg.substring(1);
+        if (optName.includes("=")) {
+          const [name, value] = optName.split("=", 2);
+          this.opts[name] = value;
+        } else {
+          if (i + 1 < argv.length && !argv[i + 1].startsWith("-")) {
+            this.opts[optName] = argv[i + 1];
+            i++;
+          } else {
+            this.opts[optName] = true;
+          }
+        }
+      } else {
+        this.args[currentArgName.toString()] = arg;
+        currentArgName++;
+      }
+      i++;
+    }
+  }
+};
+var Output = class {
+  /**
+   * Writes a message to the output
+   *
+   * @param {string} message - The message to write
+   */
+  write(message) {
+    process.stdout.write(message);
+  }
+  /**
+   * Writes a message to the output followed by a newline
+   *
+   * @param {string} message - The message to write
+   */
+  writeln(message) {
+    console.log(message);
+  }
+  /**
+   * Writes an error message to the output
+   *
+   * @param {string} message - The error message to write
+   */
+  error(message) {
+    console.error(chalk.bold.red("ERROR") + ": " + message);
+  }
+  /**
+   * Writes a success message to the output
+   *
+   * @param {string} message - The success message to write
+   */
+  success(message) {
+    console.log(chalk.bold.green("SUCCESS") + ": " + message);
+  }
+  /**
+   * Writes an info message to the output
+   *
+   * @param {string} message - The info message to write
+   */
+  info(message) {
+    console.log(chalk.bold.blue("INFO") + ": " + message);
+  }
+  /**
+   * Writes a warning message to the output
+   *
+   * @param {string} message - The warning message to write
+   */
+  warning(message) {
+    console.log(chalk.bold.yellow("WARNING") + ": " + message);
+  }
+  /**
+   * Writes a comment message to the output
+   *
+   * @param {string} message - The comment message to write
+   */
+  comment(message) {
+    console.log(chalk.gray("// " + message));
+  }
+};
+var ARGUMENT_METADATA_KEY = Symbol("argument");
+function Argument(options) {
+  return (target, propertyKey) => {
+    let name = options.name;
+    {
+      name = `<${name}>`;
+    }
+    if (options.isArray) {
+      name = `${name}...`;
+    }
+    const metadata = {
+      name,
+      description: options.description || "",
+      defaultValue: options.defaultValue,
+      propertyKey
+    };
+    const existingMetadata = Reflect.getMetadata(ARGUMENT_METADATA_KEY, target.constructor) || [];
+    existingMetadata.push(metadata);
+    Reflect.defineMetadata(ARGUMENT_METADATA_KEY, existingMetadata, target.constructor);
+  };
+}
+var container = new Container({
+  defaultScope: "Singleton"
+});
+
+// src/decorators/command.decorator.ts
+var COMMAND_METADATA_KEY = Symbol("command");
+function Command(options) {
+  return (target) => {
+    var _a, _b;
+    const commandOptions = {
+      ...options,
+      hidden: (_a = options.hidden) != null ? _a : false,
+      injectable: (_b = options.injectable) != null ? _b : true,
+      description: options.description || "",
+      shortcuts: options.shortcuts || []
+    };
+    Reflect.defineMetadata(COMMAND_METADATA_KEY, commandOptions, target);
+    if (commandOptions.injectable) {
+      injectable()(target);
+      try {
+        container.bind(ICommand.$).to(target).inSingletonScope();
+      } catch (error) {
+      }
+    }
+  };
+}
+var OPTION_METADATA_KEY = Symbol("option");
+function Option(options) {
+  return (target, propertyKey) => {
+    const metadata = {
+      flags: options.flags,
+      description: options.description || "",
+      defaultValue: options.defaultValue,
+      propertyKey
+    };
+    const existingMetadata = Reflect.getMetadata(OPTION_METADATA_KEY, target.constructor) || [];
+    existingMetadata.push(metadata);
+    Reflect.defineMetadata(OPTION_METADATA_KEY, existingMetadata, target.constructor);
+  };
+}
+
+// src/command/base-command.ts
+var BaseCommand = class {
+  /**
+   * Creates a new BaseCommand instance
+   *
+   * @param {string} [name] - The name of the command (optional)
+   * @param {string} [description] - The description of the command (optional)
+   */
+  constructor(name, description = "") {
+    if (name === void 0 || name === null) {
+      const metadata = Reflect.getMetadata(COMMAND_METADATA_KEY, this.constructor);
+      if (metadata && metadata.name) {
+        this.name = metadata.name;
+        if (!description && metadata.description) {
+          this.description = metadata.description;
+        } else {
+          this.description = description;
+        }
+      } else {
+        throw new Error(
+          `Command name is required. Either provide it in the constructor or use the @Command decorator.`
+        );
+      }
+    } else {
+      this.name = name;
+      this.description = description;
+    }
+    this.input = new Input([]);
+    this.output = new Output();
+  }
+  /**
+   * Gets the name of the command
+   *
+   * @returns {string} The command name
+   */
+  getName() {
+    return this.name;
+  }
+  /**
+   * Gets the description of the command
+   *
+   * @returns {string} The command description
+   */
+  getDescription() {
+    return this.description;
+  }
+  /**
+   * Sets the input instance
+   *
+   * @param {IInput} input - The input instance
+   */
+  setInput(input) {
+    this.input = input;
+  }
+  /**
+   * Gets the input instance
+   *
+   * @returns {IInput} The input instance
+   */
+  getInput() {
+    return this.input;
+  }
+  /**
+   * Sets the output instance
+   *
+   * @param {IOutput} output - The output instance
+   */
+  setOutput(output) {
+    this.output = output;
+  }
+  /**
+   * Gets the output instance
+   *
+   * @returns {IOutput} The output instance
+   */
+  getOutput() {
+    return this.output;
+  }
+  /**
+   * Sets the command arguments
+   *
+   * @param {string[]} args - The command arguments
+   */
+  setArguments(args) {
+    args.forEach((arg, index) => {
+      this.input.args[index.toString()] = arg;
+    });
+  }
+  /**
+   * Sets the command options
+   *
+   * @param {Record<string, any>} options - The command options
+   */
+  setOptions(options) {
+    Object.entries(options).forEach(([key, value]) => {
+      this.input.opts[key] = value;
+    });
+  }
+  /**
+   * Configures the command with options and arguments
+   *
+   * This method should be overridden by subclasses to define
+   * command-specific options and arguments.
+   */
+  configure() {
+  }
+  /**
+   * Hook that runs before command execution
+   *
+   * @returns {Promise<boolean>} True if execution should continue, false to abort
+   */
+  async beforeExecute() {
+    return true;
+  }
+  /**
+   * Hook that runs after command execution
+   *
+   * @param {number | void} exitCode - The exit code from the command
+   * @returns {Promise<void>}
+   */
+  async afterExecute(exitCode) {
+  }
+  /**
+   * Writes a line to the output
+   *
+   * @param {string} message - The message to write
+   */
+  line(message = "") {
+    this.output.writeln(message);
+  }
+  /**
+   * Writes an info message to the output
+   *
+   * @param {string} message - The message to write
+   */
+  info(message) {
+    this.output.info(message);
+  }
+  /**
+   * Writes a success message to the output
+   *
+   * @param {string} message - The message to write
+   */
+  success(message) {
+    this.output.success(message);
+  }
+  /**
+   * Writes an error message to the output
+   *
+   * @param {string} message - The message to write
+   */
+  error(message) {
+    this.output.error(message);
+  }
+  /**
+   * Writes a warning message to the output
+   *
+   * @param {string} message - The message to write
+   */
+  warning(message) {
+    this.output.warning(message);
+  }
+  /**
+   * Writes a comment message to the output
+   *
+   * @param {string} message - The message to write
+   */
+  comment(message) {
+    this.output.comment(message);
+  }
+};
+/**
+ * Success exit code (0)
+ * @static
+ */
+BaseCommand.SUCCESS = 0;
+/**
+ * Failure exit code (1)
+ * @static
+ */
+BaseCommand.FAILURE = 1;
+/**
+ * Invalid input exit code (2)
+ * @static
+ */
+BaseCommand.INVALID = 2;
+var Ask = class {
+  /**
+   * Asks a single question
+   *
+   * @param {IQuestion} question - The question to ask
+   * @returns {Promise<any>} The answer
+   */
+  async question(question) {
+    return Ask.question(question);
+  }
+  /**
+   * Asks multiple questions
+   *
+   * @param {IQuestion[]} questions - The questions to ask
+   * @returns {Promise<Record<string, any>>} The answers
+   */
+  async questions(questions) {
+    return Ask.questions(questions);
+  }
+  /**
+   * Asks for input
+   *
+   * @param {string} message - The message to display
+   * @param {string} defaultValue - The default value
+   * @returns {Promise<string>} The input
+   */
+  async input(message, defaultValue) {
+    return Ask.input(message, defaultValue);
+  }
+  /**
+   * Asks for confirmation
+   *
+   * @param {string} message - The message to display
+   * @param {boolean} defaultValue - The default value
+   * @returns {Promise<boolean>} The confirmation
+   */
+  async confirm(message, defaultValue = false) {
+    return Ask.confirm(message, defaultValue);
+  }
+  /**
+   * Asks for a selection from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any} defaultValue - The default value
+   * @returns {Promise<any>} The selection
+   */
+  async select(message, choices, defaultValue) {
+    return Ask.select(message, choices, defaultValue);
+  }
+  /**
+   * Asks for multiple selections from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any[]} defaultValue - The default values
+   * @returns {Promise<any[]>} The selections
+   */
+  async multiSelect(message, choices, defaultValue) {
+    return Ask.multiSelect(message, choices, defaultValue);
+  }
+  /**
+   * Asks for a password
+   *
+   * @param {string} message - The message to display
+   * @returns {Promise<string>} The password
+   */
+  async password(message) {
+    return Ask.password(message);
+  }
+  /**
+   * Asks a single question
+   *
+   * @param {IQuestion} question - The question to ask
+   * @returns {Promise<any>} The answer
+   */
+  static async question(question) {
+    const answers = await inquirer.prompt([question]);
+    return answers[question.name];
+  }
+  /**
+   * Asks multiple questions
+   *
+   * @param {IQuestion[]} questions - The questions to ask
+   * @returns {Promise<Record<string, any>>} The answers
+   */
+  static async questions(questions) {
+    return inquirer.prompt(questions);
+  }
+  /**
+   * Asks for input
+   *
+   * @param {string} message - The message to display
+   * @param {string} defaultValue - The default value
+   * @returns {Promise<string>} The input
+   */
+  static async input(message, defaultValue) {
+    return Ask.question({
+      type: QuestionType.Input,
+      name: "input",
+      message,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for confirmation
+   *
+   * @param {string} message - The message to display
+   * @param {boolean} defaultValue - The default value
+   * @returns {Promise<boolean>} The confirmation
+   */
+  static async confirm(message, defaultValue = false) {
+    return Ask.question({
+      type: QuestionType.Confirm,
+      name: "confirm",
+      message,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for a selection from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any} defaultValue - The default value
+   * @returns {Promise<any>} The selection
+   */
+  static async select(message, choices, defaultValue) {
+    return Ask.question({
+      type: QuestionType.List,
+      name: "select",
+      message,
+      choices,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for multiple selections from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any[]} defaultValue - The default values
+   * @returns {Promise<any[]>} The selections
+   */
+  static async multiSelect(message, choices, defaultValue) {
+    return Ask.question({
+      type: QuestionType.Checkbox,
+      name: "multiSelect",
+      message,
+      choices,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for a password
+   *
+   * @param {string} message - The message to display
+   * @returns {Promise<string>} The password
+   */
+  static async password(message) {
+    return Ask.question({
+      type: QuestionType.Password,
+      name: "password",
+      message
+    });
+  }
+};
+Ask = __decorateClass([
+  injectable()
+], Ask);
+
+// src/commands/make-command.ts
+var MakeCommand = class extends BaseCommand {
+  /**
+   * Creates a new MakeCommand instance
+   * @param {IStubGenerator} stubGenerator - The stub generator
+   */
+  constructor(stubGenerator) {
+    super();
+    this.stubGenerator = stubGenerator;
+  }
+  /**
+   * Executes the command
+   * @returns {Promise<number>} The exit code
+   */
+  async execute() {
+    try {
+      const name = this.input.getArgument("0") || this.commandName;
+      if (!name) {
+        const inputName = await Ask.input("What should the command be named?");
+        if (!inputName) {
+          this.error("Command name is required.");
+          return BaseCommand.INVALID;
+        }
+        this.commandName = inputName;
+      } else {
+        this.commandName = name;
+      }
+      let description = this.input.getOption("description") || this.commandDescription;
+      if (!description) {
+        description = await Ask.input(
+          "Enter a description for the command:",
+          "A custom console command"
+        );
+        this.commandDescription = description;
+      }
+      const className = this.getClassName(this.commandName);
+      const outputDir = this.input.getOption("dir") || this.directory;
+      const outputPath = path.join(
+        process.cwd(),
+        outputDir,
+        `${this.getFileName(this.commandName)}.ts`
+      );
+      if (fs.existsSync(outputPath)) {
+        const overwrite = await Ask.confirm(`File ${outputPath} already exists. Overwrite?`, false);
+        if (!overwrite) {
+          this.info("Command creation cancelled.");
+          return BaseCommand.SUCCESS;
+        }
+      }
+      const success = this.stubGenerator.generate("command", outputPath, {
+        name: this.commandName,
+        className,
+        commandName: this.commandName,
+        description
+      });
+      if (success) {
+        this.success(
+          `Command ${chalk.green(this.commandName)} created successfully at ${chalk.cyan(outputPath)}`
+        );
+        return BaseCommand.SUCCESS;
+      } else {
+        this.error(`Failed to create command ${this.commandName}`);
+        return BaseCommand.FAILURE;
+      }
+    } catch (error) {
+      this.error(`An error occurred: ${error instanceof Error ? error.message : String(error)}`);
+      return BaseCommand.FAILURE;
+    }
+  }
+  /**
+   * Converts a command name to a class name
+   *
+   * @param {string} name - The command name
+   * @returns {string} The class name
+   * @private
+   */
+  getClassName(name) {
+    return name.split(":").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join("") + "Command";
+  }
+  /**
+   * Converts a command name to a file name
+   *
+   * @param {string} name - The command name
+   * @returns {string} The file name
+   * @private
+   */
+  getFileName(name) {
+    return name.replace(":", "-") + "-command";
+  }
+};
+__decorateClass([
+  Argument({
+    name: "name",
+    description: "The name of the command (e.g., app:greet)"})
+], MakeCommand.prototype, "commandName", 2);
+__decorateClass([
+  Option({
+    flags: "-d, --dir <directory>",
+    description: "The directory where the command will be created",
+    defaultValue: "src/commands"
+  })
+], MakeCommand.prototype, "directory", 2);
+__decorateClass([
+  Option({
+    flags: "--description <description>",
+    description: "The description of the command"
+  })
+], MakeCommand.prototype, "commandDescription", 2);
+MakeCommand = __decorateClass([
+  Command({
+    name: "make:command",
+    description: "Create a new console command"
+  }),
+  __decorateParam(0, inject(IStubGenerator.$))
+], MakeCommand);
+
+export { MakeCommand };
+//# sourceMappingURL=make-command.mjs.map
+//# sourceMappingURL=make-command.mjs.map
