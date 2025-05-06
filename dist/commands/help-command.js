@@ -1,13 +1,19 @@
 'use strict';
 
-var chalk2 = require('chalk');
+var chalk3 = require('chalk');
 var inversify = require('inversify');
 var tsTypes = require('@pixielity/ts-types');
 require('reflect-metadata');
+var inquirer = require('inquirer');
+var cliProgress = require('cli-progress');
+var Table = require('cli-table3');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
-var chalk2__default = /*#__PURE__*/_interopDefault(chalk2);
+var chalk3__default = /*#__PURE__*/_interopDefault(chalk3);
+var inquirer__default = /*#__PURE__*/_interopDefault(inquirer);
+var cliProgress__default = /*#__PURE__*/_interopDefault(cliProgress);
+var Table__default = /*#__PURE__*/_interopDefault(Table);
 
 /**
  * @pixielity/ts-console v1.0.0
@@ -171,7 +177,7 @@ var Output = class {
    * @param {string} message - The error message to write
    */
   error(message) {
-    console.error(chalk2__default.default.bold.red("ERROR") + ": " + message);
+    console.error(chalk3__default.default.bold.red("ERROR") + ": " + message);
   }
   /**
    * Writes a success message to the output
@@ -179,7 +185,7 @@ var Output = class {
    * @param {string} message - The success message to write
    */
   success(message) {
-    console.log(chalk2__default.default.bold.green("SUCCESS") + ": " + message);
+    console.log(chalk3__default.default.bold.green("SUCCESS") + ": " + message);
   }
   /**
    * Writes an info message to the output
@@ -187,7 +193,7 @@ var Output = class {
    * @param {string} message - The info message to write
    */
   info(message) {
-    console.log(chalk2__default.default.bold.blue("INFO") + ": " + message);
+    console.log(chalk3__default.default.bold.blue("INFO") + ": " + message);
   }
   /**
    * Writes a warning message to the output
@@ -195,7 +201,7 @@ var Output = class {
    * @param {string} message - The warning message to write
    */
   warning(message) {
-    console.log(chalk2__default.default.bold.yellow("WARNING") + ": " + message);
+    console.log(chalk3__default.default.bold.yellow("WARNING") + ": " + message);
   }
   /**
    * Writes a comment message to the output
@@ -203,7 +209,7 @@ var Output = class {
    * @param {string} message - The comment message to write
    */
   comment(message) {
-    console.log(chalk2__default.default.gray("// " + message));
+    console.log(chalk3__default.default.gray("// " + message));
   }
 };
 var ARGUMENT_METADATA_KEY = Symbol("argument");
@@ -234,6 +240,302 @@ function Command(options) {
   };
 }
 var OPTION_METADATA_KEY = Symbol("option");
+var Ask = class {
+  /**
+   * Asks a single question
+   *
+   * @param {IQuestion} question - The question to ask
+   * @returns {Promise<any>} The answer
+   */
+  async question(question) {
+    return Ask.question(question);
+  }
+  /**
+   * Asks multiple questions
+   *
+   * @param {IQuestion[]} questions - The questions to ask
+   * @returns {Promise<Record<string, any>>} The answers
+   */
+  async questions(questions) {
+    return Ask.questions(questions);
+  }
+  /**
+   * Asks for input
+   *
+   * @param {string} message - The message to display
+   * @param {string} defaultValue - The default value
+   * @returns {Promise<string>} The input
+   */
+  async input(message, defaultValue) {
+    return Ask.input(message, defaultValue);
+  }
+  /**
+   * Asks for confirmation
+   *
+   * @param {string} message - The message to display
+   * @param {boolean} defaultValue - The default value
+   * @returns {Promise<boolean>} The confirmation
+   */
+  async confirm(message, defaultValue = false) {
+    return Ask.confirm(message, defaultValue);
+  }
+  /**
+   * Asks for a selection from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any} defaultValue - The default value
+   * @returns {Promise<any>} The selection
+   */
+  async select(message, choices, defaultValue) {
+    return Ask.select(message, choices, defaultValue);
+  }
+  /**
+   * Asks for multiple selections from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any[]} defaultValue - The default values
+   * @returns {Promise<any[]>} The selections
+   */
+  async multiSelect(message, choices, defaultValue) {
+    return Ask.multiSelect(message, choices, defaultValue);
+  }
+  /**
+   * Asks for a password
+   *
+   * @param {string} message - The message to display
+   * @returns {Promise<string>} The password
+   */
+  async password(message) {
+    return Ask.password(message);
+  }
+  /**
+   * Asks a single question
+   *
+   * @param {IQuestion} question - The question to ask
+   * @returns {Promise<any>} The answer
+   */
+  static async question(question) {
+    const answers = await inquirer__default.default.prompt([question]);
+    return answers[question.name];
+  }
+  /**
+   * Asks multiple questions
+   *
+   * @param {IQuestion[]} questions - The questions to ask
+   * @returns {Promise<Record<string, any>>} The answers
+   */
+  static async questions(questions) {
+    return inquirer__default.default.prompt(questions);
+  }
+  /**
+   * Asks for input
+   *
+   * @param {string} message - The message to display
+   * @param {string} defaultValue - The default value
+   * @returns {Promise<string>} The input
+   */
+  static async input(message, defaultValue) {
+    return Ask.question({
+      type: tsTypes.QuestionType.Input,
+      name: "input",
+      message,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for confirmation
+   *
+   * @param {string} message - The message to display
+   * @param {boolean} defaultValue - The default value
+   * @returns {Promise<boolean>} The confirmation
+   */
+  static async confirm(message, defaultValue = false) {
+    return Ask.question({
+      type: tsTypes.QuestionType.Confirm,
+      name: "confirm",
+      message,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for a selection from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any} defaultValue - The default value
+   * @returns {Promise<any>} The selection
+   */
+  static async select(message, choices, defaultValue) {
+    return Ask.question({
+      type: tsTypes.QuestionType.List,
+      name: "select",
+      message,
+      choices,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for multiple selections from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any[]} defaultValue - The default values
+   * @returns {Promise<any[]>} The selections
+   */
+  static async multiSelect(message, choices, defaultValue) {
+    return Ask.question({
+      type: tsTypes.QuestionType.Checkbox,
+      name: "multiSelect",
+      message,
+      choices,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for a password
+   *
+   * @param {string} message - The message to display
+   * @returns {Promise<string>} The password
+   */
+  static async password(message) {
+    return Ask.question({
+      type: tsTypes.QuestionType.Password,
+      name: "password",
+      message
+    });
+  }
+};
+Ask = __decorateClass([
+  inversify.injectable()
+], Ask);
+var ProgressBar = class {
+  /**
+   * Creates a new ProgressBar instance
+   *
+   * @param {number} total - The total value
+   * @param {IProgressBarFormat} format - The format options
+   */
+  constructor(total = 100, format) {
+    this.bar = new cliProgress__default.default.SingleBar({
+      format: (format == null ? void 0 : format.format) || `${chalk3__default.default.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
+      barCompleteChar: (format == null ? void 0 : format.barCompleteChar) || "\u2588",
+      barIncompleteChar: (format == null ? void 0 : format.barIncompleteChar) || "\u2591"
+    });
+    this.bar.start(total, 0);
+  }
+  /**
+   * Updates the progress bar
+   *
+   * @param {number} value - The current value
+   * @param {Record<string, any>} payload - Additional payload data
+   */
+  update(value, payload) {
+    this.bar.update(value, payload);
+  }
+  /**
+   * Increments the progress bar
+   *
+   * @param {number} value - The value to increment by
+   * @param {Record<string, any>} payload - Additional payload data
+   */
+  increment(value = 1, payload) {
+    this.bar.increment(value, payload);
+  }
+  /**
+   * Stops the progress bar
+   */
+  stop() {
+    this.bar.stop();
+  }
+  /**
+   * Creates a multi-bar container
+   *
+   * @returns {cliProgress.MultiBar} The multi-bar container
+   */
+  static createMultiBar() {
+    return new cliProgress__default.default.MultiBar({
+      format: `${chalk3__default.default.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
+      barCompleteChar: "\u2588",
+      barIncompleteChar: "\u2591"
+    });
+  }
+};
+ProgressBar = __decorateClass([
+  inversify.injectable()
+], ProgressBar);
+var TableOutput = class {
+  /**
+   * Creates a new TableOutput instance
+   *
+   * @param {string[]} headers - The table headers
+   * @param {ITableStyle} style - The table style
+   */
+  constructor(headers = [], style) {
+    this.table = new Table__default.default({
+      head: headers,
+      ...style
+    });
+  }
+  /**
+   * Adds a row to the table
+   *
+   * @param {any[]} row - The row data
+   * @returns {TableOutput} The table instance for chaining
+   */
+  addRow(row) {
+    this.table.push(row);
+    return this;
+  }
+  /**
+   * Adds multiple rows to the table
+   *
+   * @param {any[][]} rows - The rows data
+   * @returns {TableOutput} The table instance for chaining
+   */
+  addRows(rows) {
+    rows.forEach((row) => this.addRow(row));
+    return this;
+  }
+  /**
+   * Renders the table to a string
+   *
+   * @returns {string} The rendered table
+   */
+  toString() {
+    return this.table.toString();
+  }
+  /**
+   * Renders the table to the console
+   */
+  render() {
+    console.log(this.toString());
+  }
+  /**
+   * Creates a new table from an array of objects
+   *
+   * @param {Record<string, any>[]} data - The data
+   * @param {string[]} columns - The columns to include
+   * @param {ITableStyle} style - The table style
+   * @returns {TableOutput} The table instance
+   */
+  static fromObjects(data, columns, style) {
+    const headers = columns;
+    const table = new TableOutput(headers, style);
+    data.forEach((item) => {
+      const row = columns.map((column) => {
+        var _a;
+        return (_a = item[column]) != null ? _a : "";
+      });
+      table.addRow(row);
+    });
+    return table;
+  }
+};
+TableOutput = __decorateClass([
+  inversify.injectable()
+], TableOutput);
 
 // src/command/base-command.ts
 var BaseCommand = class {
@@ -454,6 +756,15 @@ var BaseCommand = class {
   comment(message) {
     this.output.comment(message);
   }
+  /**
+   * Ask utility class
+   *
+   * @param key - The option name.
+   * @returns Ask utility class
+   */
+  ask(message) {
+    return Ask;
+  }
 };
 /**
  * Exit code for successful execution.
@@ -499,35 +810,35 @@ exports.HelpCommand = class HelpCommand extends BaseCommand {
         return BaseCommand.FAILURE;
       }
       const metadata = Reflect.getMetadata(COMMAND_METADATA_KEY, command.constructor) || {};
-      this.line(chalk2__default.default.bold(`${command.getName()}: ${command.getDescription()}`));
+      this.line(chalk3__default.default.bold(`${command.getName()}: ${command.getDescription()}`));
       this.line("");
       if (metadata.aliases && metadata.aliases.length > 0) {
-        this.line(chalk2__default.default.cyan("Aliases:"));
+        this.line(chalk3__default.default.cyan("Aliases:"));
         metadata.aliases.forEach((alias) => {
-          this.line(`  ${chalk2__default.default.yellow(alias)}`);
+          this.line(`  ${chalk3__default.default.yellow(alias)}`);
         });
         this.line("");
       }
       if (metadata.shortcuts && metadata.shortcuts.length > 0) {
-        this.line(chalk2__default.default.cyan("Shortcuts:"));
+        this.line(chalk3__default.default.cyan("Shortcuts:"));
         metadata.shortcuts.forEach((shortcut) => {
-          this.line(`  ${chalk2__default.default.magenta(shortcut.flag)}: ${shortcut.description}`);
+          this.line(`  ${chalk3__default.default.magenta(shortcut.flag)}: ${shortcut.description}`);
         });
         this.line("");
       }
       const argumentsMetadata = Reflect.getMetadata(ARGUMENT_METADATA_KEY, command.constructor) || [];
       if (argumentsMetadata.length > 0) {
-        this.line(chalk2__default.default.cyan("Arguments:"));
+        this.line(chalk3__default.default.cyan("Arguments:"));
         argumentsMetadata.forEach((arg) => {
-          this.line(`  ${chalk2__default.default.green(arg.name)}: ${arg.description || "No description"}`);
+          this.line(`  ${chalk3__default.default.green(arg.name)}: ${arg.description || "No description"}`);
         });
         this.line("");
       }
       const optionsMetadata = Reflect.getMetadata(OPTION_METADATA_KEY, command.constructor) || [];
       if (optionsMetadata.length > 0) {
-        this.line(chalk2__default.default.cyan("Options:"));
+        this.line(chalk3__default.default.cyan("Options:"));
         optionsMetadata.forEach((opt) => {
-          this.line(`  ${chalk2__default.default.green(opt.flags)}: ${opt.description || "No description"}`);
+          this.line(`  ${chalk3__default.default.green(opt.flags)}: ${opt.description || "No description"}`);
         });
         this.line("");
       }

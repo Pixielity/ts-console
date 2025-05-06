@@ -1,4 +1,4 @@
-import { ICommand, IInput, IOutput } from '@pixielity/ts-types';
+import { ICommand, IInput, IOutput, IAsk } from '@pixielity/ts-types';
 
 /**
  * Abstract base class for console commands.
@@ -199,6 +199,13 @@ declare abstract class BaseCommand implements ICommand {
      * @param message - The message to write.
      */
     protected comment(message: string): void;
+    /**
+     * Ask utility class
+     *
+     * @param key - The option name.
+     * @returns Ask utility class
+     */
+    protected ask(message: string): IAsk;
 }
 
 export { BaseCommand };

@@ -1,9 +1,10 @@
-import type { ICommand } from '@pixielity/ts-types'
+import type { IAsk, ICommand } from '@pixielity/ts-types'
 import type { IInput } from '@pixielity/ts-types'
 import type { IOutput } from '@pixielity/ts-types'
 import { Input } from '../input/input'
 import { Output } from '../output/output'
 import { COMMAND_METADATA_KEY } from '../decorators'
+import { Ask } from '@/ui'
 
 /**
  * Abstract base class for console commands.
@@ -299,5 +300,15 @@ export abstract class BaseCommand implements ICommand {
    */
   protected comment(message: string): void {
     this.output.comment(message)
+  }
+
+  /**
+   * Ask utility class
+   *
+   * @param key - The option name.
+   * @returns Ask utility class
+   */
+  protected ask(message: string): IAsk {
+    return Ask
   }
 }

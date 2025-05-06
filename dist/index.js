@@ -4,10 +4,10 @@ var chalk6 = require('chalk');
 require('reflect-metadata');
 var inversify = require('inversify');
 var tsTypes = require('@pixielity/ts-types');
-var commander = require('commander');
 var inquirer = require('inquirer');
-var Table = require('cli-table3');
 var cliProgress = require('cli-progress');
+var Table = require('cli-table3');
+var commander = require('commander');
 var path2 = require('path');
 var fs2 = require('fs');
 var glob = require('glob');
@@ -34,8 +34,8 @@ function _interopNamespace(e) {
 
 var chalk6__default = /*#__PURE__*/_interopDefault(chalk6);
 var inquirer__default = /*#__PURE__*/_interopDefault(inquirer);
-var Table__default = /*#__PURE__*/_interopDefault(Table);
 var cliProgress__default = /*#__PURE__*/_interopDefault(cliProgress);
+var Table__default = /*#__PURE__*/_interopDefault(Table);
 var path2__namespace = /*#__PURE__*/_interopNamespace(path2);
 var fs2__namespace = /*#__PURE__*/_interopNamespace(fs2);
 
@@ -307,6 +307,302 @@ function Option(options) {
     Reflect.defineMetadata(OPTION_METADATA_KEY, existingMetadata, target.constructor);
   };
 }
+exports.Ask = class Ask {
+  /**
+   * Asks a single question
+   *
+   * @param {IQuestion} question - The question to ask
+   * @returns {Promise<any>} The answer
+   */
+  async question(question) {
+    return exports.Ask.question(question);
+  }
+  /**
+   * Asks multiple questions
+   *
+   * @param {IQuestion[]} questions - The questions to ask
+   * @returns {Promise<Record<string, any>>} The answers
+   */
+  async questions(questions) {
+    return exports.Ask.questions(questions);
+  }
+  /**
+   * Asks for input
+   *
+   * @param {string} message - The message to display
+   * @param {string} defaultValue - The default value
+   * @returns {Promise<string>} The input
+   */
+  async input(message, defaultValue) {
+    return exports.Ask.input(message, defaultValue);
+  }
+  /**
+   * Asks for confirmation
+   *
+   * @param {string} message - The message to display
+   * @param {boolean} defaultValue - The default value
+   * @returns {Promise<boolean>} The confirmation
+   */
+  async confirm(message, defaultValue = false) {
+    return exports.Ask.confirm(message, defaultValue);
+  }
+  /**
+   * Asks for a selection from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any} defaultValue - The default value
+   * @returns {Promise<any>} The selection
+   */
+  async select(message, choices, defaultValue) {
+    return exports.Ask.select(message, choices, defaultValue);
+  }
+  /**
+   * Asks for multiple selections from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any[]} defaultValue - The default values
+   * @returns {Promise<any[]>} The selections
+   */
+  async multiSelect(message, choices, defaultValue) {
+    return exports.Ask.multiSelect(message, choices, defaultValue);
+  }
+  /**
+   * Asks for a password
+   *
+   * @param {string} message - The message to display
+   * @returns {Promise<string>} The password
+   */
+  async password(message) {
+    return exports.Ask.password(message);
+  }
+  /**
+   * Asks a single question
+   *
+   * @param {IQuestion} question - The question to ask
+   * @returns {Promise<any>} The answer
+   */
+  static async question(question) {
+    const answers = await inquirer__default.default.prompt([question]);
+    return answers[question.name];
+  }
+  /**
+   * Asks multiple questions
+   *
+   * @param {IQuestion[]} questions - The questions to ask
+   * @returns {Promise<Record<string, any>>} The answers
+   */
+  static async questions(questions) {
+    return inquirer__default.default.prompt(questions);
+  }
+  /**
+   * Asks for input
+   *
+   * @param {string} message - The message to display
+   * @param {string} defaultValue - The default value
+   * @returns {Promise<string>} The input
+   */
+  static async input(message, defaultValue) {
+    return exports.Ask.question({
+      type: tsTypes.QuestionType.Input,
+      name: "input",
+      message,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for confirmation
+   *
+   * @param {string} message - The message to display
+   * @param {boolean} defaultValue - The default value
+   * @returns {Promise<boolean>} The confirmation
+   */
+  static async confirm(message, defaultValue = false) {
+    return exports.Ask.question({
+      type: tsTypes.QuestionType.Confirm,
+      name: "confirm",
+      message,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for a selection from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any} defaultValue - The default value
+   * @returns {Promise<any>} The selection
+   */
+  static async select(message, choices, defaultValue) {
+    return exports.Ask.question({
+      type: tsTypes.QuestionType.List,
+      name: "select",
+      message,
+      choices,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for multiple selections from a list
+   *
+   * @param {string} message - The message to display
+   * @param {string[] | { name: string; value: any }[]} choices - The choices
+   * @param {any[]} defaultValue - The default values
+   * @returns {Promise<any[]>} The selections
+   */
+  static async multiSelect(message, choices, defaultValue) {
+    return exports.Ask.question({
+      type: tsTypes.QuestionType.Checkbox,
+      name: "multiSelect",
+      message,
+      choices,
+      default: defaultValue
+    });
+  }
+  /**
+   * Asks for a password
+   *
+   * @param {string} message - The message to display
+   * @returns {Promise<string>} The password
+   */
+  static async password(message) {
+    return exports.Ask.question({
+      type: tsTypes.QuestionType.Password,
+      name: "password",
+      message
+    });
+  }
+};
+exports.Ask = __decorateClass([
+  inversify.injectable()
+], exports.Ask);
+exports.ProgressBar = class ProgressBar {
+  /**
+   * Creates a new ProgressBar instance
+   *
+   * @param {number} total - The total value
+   * @param {IProgressBarFormat} format - The format options
+   */
+  constructor(total = 100, format) {
+    this.bar = new cliProgress__default.default.SingleBar({
+      format: (format == null ? void 0 : format.format) || `${chalk6__default.default.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
+      barCompleteChar: (format == null ? void 0 : format.barCompleteChar) || "\u2588",
+      barIncompleteChar: (format == null ? void 0 : format.barIncompleteChar) || "\u2591"
+    });
+    this.bar.start(total, 0);
+  }
+  /**
+   * Updates the progress bar
+   *
+   * @param {number} value - The current value
+   * @param {Record<string, any>} payload - Additional payload data
+   */
+  update(value, payload) {
+    this.bar.update(value, payload);
+  }
+  /**
+   * Increments the progress bar
+   *
+   * @param {number} value - The value to increment by
+   * @param {Record<string, any>} payload - Additional payload data
+   */
+  increment(value = 1, payload) {
+    this.bar.increment(value, payload);
+  }
+  /**
+   * Stops the progress bar
+   */
+  stop() {
+    this.bar.stop();
+  }
+  /**
+   * Creates a multi-bar container
+   *
+   * @returns {cliProgress.MultiBar} The multi-bar container
+   */
+  static createMultiBar() {
+    return new cliProgress__default.default.MultiBar({
+      format: `${chalk6__default.default.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
+      barCompleteChar: "\u2588",
+      barIncompleteChar: "\u2591"
+    });
+  }
+};
+exports.ProgressBar = __decorateClass([
+  inversify.injectable()
+], exports.ProgressBar);
+exports.TableOutput = class TableOutput {
+  /**
+   * Creates a new TableOutput instance
+   *
+   * @param {string[]} headers - The table headers
+   * @param {ITableStyle} style - The table style
+   */
+  constructor(headers = [], style) {
+    this.table = new Table__default.default({
+      head: headers,
+      ...style
+    });
+  }
+  /**
+   * Adds a row to the table
+   *
+   * @param {any[]} row - The row data
+   * @returns {TableOutput} The table instance for chaining
+   */
+  addRow(row) {
+    this.table.push(row);
+    return this;
+  }
+  /**
+   * Adds multiple rows to the table
+   *
+   * @param {any[][]} rows - The rows data
+   * @returns {TableOutput} The table instance for chaining
+   */
+  addRows(rows) {
+    rows.forEach((row) => this.addRow(row));
+    return this;
+  }
+  /**
+   * Renders the table to a string
+   *
+   * @returns {string} The rendered table
+   */
+  toString() {
+    return this.table.toString();
+  }
+  /**
+   * Renders the table to the console
+   */
+  render() {
+    console.log(this.toString());
+  }
+  /**
+   * Creates a new table from an array of objects
+   *
+   * @param {Record<string, any>[]} data - The data
+   * @param {string[]} columns - The columns to include
+   * @param {ITableStyle} style - The table style
+   * @returns {TableOutput} The table instance
+   */
+  static fromObjects(data, columns, style) {
+    const headers = columns;
+    const table = new exports.TableOutput(headers, style);
+    data.forEach((item) => {
+      const row = columns.map((column) => {
+        var _a;
+        return (_a = item[column]) != null ? _a : "";
+      });
+      table.addRow(row);
+    });
+    return table;
+  }
+};
+exports.TableOutput = __decorateClass([
+  inversify.injectable()
+], exports.TableOutput);
 
 // src/command/base-command.ts
 var BaseCommand = class {
@@ -526,6 +822,15 @@ var BaseCommand = class {
    */
   comment(message) {
     this.output.comment(message);
+  }
+  /**
+   * Ask utility class
+   *
+   * @param key - The option name.
+   * @returns Ask utility class
+   */
+  ask(message) {
+    return exports.Ask;
   }
 };
 /**
@@ -933,304 +1238,6 @@ exports.Application = __decorateClass([
   __decorateParam(0, inversify.inject(tsTypes.ICommandRegistry.$)),
   __decorateParam(1, inversify.inject(tsTypes.ICommandCollector.$))
 ], exports.Application);
-exports.Ask = class Ask {
-  /**
-   * Asks a single question
-   *
-   * @param {IQuestion} question - The question to ask
-   * @returns {Promise<any>} The answer
-   */
-  async question(question) {
-    return exports.Ask.question(question);
-  }
-  /**
-   * Asks multiple questions
-   *
-   * @param {IQuestion[]} questions - The questions to ask
-   * @returns {Promise<Record<string, any>>} The answers
-   */
-  async questions(questions) {
-    return exports.Ask.questions(questions);
-  }
-  /**
-   * Asks for input
-   *
-   * @param {string} message - The message to display
-   * @param {string} defaultValue - The default value
-   * @returns {Promise<string>} The input
-   */
-  async input(message, defaultValue) {
-    return exports.Ask.input(message, defaultValue);
-  }
-  /**
-   * Asks for confirmation
-   *
-   * @param {string} message - The message to display
-   * @param {boolean} defaultValue - The default value
-   * @returns {Promise<boolean>} The confirmation
-   */
-  async confirm(message, defaultValue = false) {
-    return exports.Ask.confirm(message, defaultValue);
-  }
-  /**
-   * Asks for a selection from a list
-   *
-   * @param {string} message - The message to display
-   * @param {string[] | { name: string; value: any }[]} choices - The choices
-   * @param {any} defaultValue - The default value
-   * @returns {Promise<any>} The selection
-   */
-  async select(message, choices, defaultValue) {
-    return exports.Ask.select(message, choices, defaultValue);
-  }
-  /**
-   * Asks for multiple selections from a list
-   *
-   * @param {string} message - The message to display
-   * @param {string[] | { name: string; value: any }[]} choices - The choices
-   * @param {any[]} defaultValue - The default values
-   * @returns {Promise<any[]>} The selections
-   */
-  async multiSelect(message, choices, defaultValue) {
-    return exports.Ask.multiSelect(message, choices, defaultValue);
-  }
-  /**
-   * Asks for a password
-   *
-   * @param {string} message - The message to display
-   * @returns {Promise<string>} The password
-   */
-  async password(message) {
-    return exports.Ask.password(message);
-  }
-  /**
-   * Asks a single question
-   *
-   * @param {IQuestion} question - The question to ask
-   * @returns {Promise<any>} The answer
-   */
-  static async question(question) {
-    const answers = await inquirer__default.default.prompt([question]);
-    return answers[question.name];
-  }
-  /**
-   * Asks multiple questions
-   *
-   * @param {IQuestion[]} questions - The questions to ask
-   * @returns {Promise<Record<string, any>>} The answers
-   */
-  static async questions(questions) {
-    return inquirer__default.default.prompt(questions);
-  }
-  /**
-   * Asks for input
-   *
-   * @param {string} message - The message to display
-   * @param {string} defaultValue - The default value
-   * @returns {Promise<string>} The input
-   */
-  static async input(message, defaultValue) {
-    return exports.Ask.question({
-      type: tsTypes.QuestionType.Input,
-      name: "input",
-      message,
-      default: defaultValue
-    });
-  }
-  /**
-   * Asks for confirmation
-   *
-   * @param {string} message - The message to display
-   * @param {boolean} defaultValue - The default value
-   * @returns {Promise<boolean>} The confirmation
-   */
-  static async confirm(message, defaultValue = false) {
-    return exports.Ask.question({
-      type: tsTypes.QuestionType.Confirm,
-      name: "confirm",
-      message,
-      default: defaultValue
-    });
-  }
-  /**
-   * Asks for a selection from a list
-   *
-   * @param {string} message - The message to display
-   * @param {string[] | { name: string; value: any }[]} choices - The choices
-   * @param {any} defaultValue - The default value
-   * @returns {Promise<any>} The selection
-   */
-  static async select(message, choices, defaultValue) {
-    return exports.Ask.question({
-      type: tsTypes.QuestionType.List,
-      name: "select",
-      message,
-      choices,
-      default: defaultValue
-    });
-  }
-  /**
-   * Asks for multiple selections from a list
-   *
-   * @param {string} message - The message to display
-   * @param {string[] | { name: string; value: any }[]} choices - The choices
-   * @param {any[]} defaultValue - The default values
-   * @returns {Promise<any[]>} The selections
-   */
-  static async multiSelect(message, choices, defaultValue) {
-    return exports.Ask.question({
-      type: tsTypes.QuestionType.Checkbox,
-      name: "multiSelect",
-      message,
-      choices,
-      default: defaultValue
-    });
-  }
-  /**
-   * Asks for a password
-   *
-   * @param {string} message - The message to display
-   * @returns {Promise<string>} The password
-   */
-  static async password(message) {
-    return exports.Ask.question({
-      type: tsTypes.QuestionType.Password,
-      name: "password",
-      message
-    });
-  }
-};
-exports.Ask = __decorateClass([
-  inversify.injectable()
-], exports.Ask);
-exports.TableOutput = class TableOutput {
-  /**
-   * Creates a new TableOutput instance
-   *
-   * @param {string[]} headers - The table headers
-   * @param {ITableStyle} style - The table style
-   */
-  constructor(headers = [], style) {
-    this.table = new Table__default.default({
-      head: headers,
-      ...style
-    });
-  }
-  /**
-   * Adds a row to the table
-   *
-   * @param {any[]} row - The row data
-   * @returns {TableOutput} The table instance for chaining
-   */
-  addRow(row) {
-    this.table.push(row);
-    return this;
-  }
-  /**
-   * Adds multiple rows to the table
-   *
-   * @param {any[][]} rows - The rows data
-   * @returns {TableOutput} The table instance for chaining
-   */
-  addRows(rows) {
-    rows.forEach((row) => this.addRow(row));
-    return this;
-  }
-  /**
-   * Renders the table to a string
-   *
-   * @returns {string} The rendered table
-   */
-  toString() {
-    return this.table.toString();
-  }
-  /**
-   * Renders the table to the console
-   */
-  render() {
-    console.log(this.toString());
-  }
-  /**
-   * Creates a new table from an array of objects
-   *
-   * @param {Record<string, any>[]} data - The data
-   * @param {string[]} columns - The columns to include
-   * @param {ITableStyle} style - The table style
-   * @returns {TableOutput} The table instance
-   */
-  static fromObjects(data, columns, style) {
-    const headers = columns;
-    const table = new exports.TableOutput(headers, style);
-    data.forEach((item) => {
-      const row = columns.map((column) => {
-        var _a;
-        return (_a = item[column]) != null ? _a : "";
-      });
-      table.addRow(row);
-    });
-    return table;
-  }
-};
-exports.TableOutput = __decorateClass([
-  inversify.injectable()
-], exports.TableOutput);
-exports.ProgressBar = class ProgressBar {
-  /**
-   * Creates a new ProgressBar instance
-   *
-   * @param {number} total - The total value
-   * @param {IProgressBarFormat} format - The format options
-   */
-  constructor(total = 100, format) {
-    this.bar = new cliProgress__default.default.SingleBar({
-      format: (format == null ? void 0 : format.format) || `${chalk6__default.default.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
-      barCompleteChar: (format == null ? void 0 : format.barCompleteChar) || "\u2588",
-      barIncompleteChar: (format == null ? void 0 : format.barIncompleteChar) || "\u2591"
-    });
-    this.bar.start(total, 0);
-  }
-  /**
-   * Updates the progress bar
-   *
-   * @param {number} value - The current value
-   * @param {Record<string, any>} payload - Additional payload data
-   */
-  update(value, payload) {
-    this.bar.update(value, payload);
-  }
-  /**
-   * Increments the progress bar
-   *
-   * @param {number} value - The value to increment by
-   * @param {Record<string, any>} payload - Additional payload data
-   */
-  increment(value = 1, payload) {
-    this.bar.increment(value, payload);
-  }
-  /**
-   * Stops the progress bar
-   */
-  stop() {
-    this.bar.stop();
-  }
-  /**
-   * Creates a multi-bar container
-   *
-   * @returns {cliProgress.MultiBar} The multi-bar container
-   */
-  static createMultiBar() {
-    return new cliProgress__default.default.MultiBar({
-      format: `${chalk6__default.default.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
-      barCompleteChar: "\u2588",
-      barIncompleteChar: "\u2591"
-    });
-  }
-};
-exports.ProgressBar = __decorateClass([
-  inversify.injectable()
-], exports.ProgressBar);
-
-// src/commands/demo-command.ts
 exports.DemoCommand = class DemoCommand extends BaseCommand {
   /**
    * Executes the command
