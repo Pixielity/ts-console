@@ -13,7 +13,7 @@ importers:
     dependencies:
       '@pixielity/ts-types':
         specifier: github:Pixielity/ts-types
-        version: https://codeload.github.com/Pixielity/ts-types/tar.gz/dab7aa3f4255791300421896f8be04a64f3482a2(@babel/core@7.27.1)(class-transformer@0.5.1)(class-validator@0.14.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: https://codeload.github.com/Pixielity/ts-types/tar.gz/f1255bc11c390d7b1f36d81dc541b78e3d26e43d(@babel/core@7.27.1)(class-transformer@0.5.1)(class-validator@0.14.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       chalk:
         specifier: 4.1.2
         version: 4.1.2
@@ -1066,8 +1066,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@pixielity/ts-types@https://codeload.github.com/Pixielity/ts-types/tar.gz/dab7aa3f4255791300421896f8be04a64f3482a2':
-    resolution: {tarball: https://codeload.github.com/Pixielity/ts-types/tar.gz/dab7aa3f4255791300421896f8be04a64f3482a2}
+  '@pixielity/ts-types@https://codeload.github.com/Pixielity/ts-types/tar.gz/f1255bc11c390d7b1f36d81dc541b78e3d26e43d':
+    resolution: {tarball: https://codeload.github.com/Pixielity/ts-types/tar.gz/f1255bc11c390d7b1f36d81dc541b78e3d26e43d}
     version: 1.0.4
     peerDependencies:
       class-transformer: ^0.5.1
@@ -4863,7 +4863,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@pixielity/ts-types@https://codeload.github.com/Pixielity/ts-types/tar.gz/dab7aa3f4255791300421896f8be04a64f3482a2(@babel/core@7.27.1)(class-transformer@0.5.1)(class-validator@0.14.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@pixielity/ts-types@https://codeload.github.com/Pixielity/ts-types/tar.gz/f1255bc11c390d7b1f36d81dc541b78e3d26e43d(@babel/core@7.27.1)(class-transformer@0.5.1)(class-validator@0.14.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       next: 15.3.1(@babel/core@7.27.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       reflect-metadata: 0.2.2
