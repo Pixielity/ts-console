@@ -178,7 +178,9 @@ var CommandScheduler = class {
       if (task.command.beforeExecute) {
         const shouldContinue = await task.command.beforeExecute();
         if (!shouldContinue) {
-          this.output.warning(`Command ${task.command.getName()} execution aborted by beforeExecute hook.`);
+          this.output.warning(
+            `Command ${task.command.getName()} execution aborted by beforeExecute hook.`
+          );
           return;
         }
       }

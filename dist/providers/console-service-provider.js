@@ -163,7 +163,9 @@ var StubGenerator = class {
       fs__namespace.writeFileSync(outputPath, content);
       return true;
     } catch (error) {
-      console.error(`Error generating file: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(
+        `Error generating file: ${error instanceof Error ? error.message : String(error)}`
+      );
       return false;
     }
   }
@@ -176,7 +178,9 @@ var StubGenerator = class {
     try {
       return fs__namespace.readdirSync(this.stubsDir).filter((file) => file.endsWith(".stub")).map((file) => file.replace(".stub", ""));
     } catch (error) {
-      console.error(`Error getting available stubs: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(
+        `Error getting available stubs: ${error instanceof Error ? error.message : String(error)}`
+      );
       return [];
     }
   }
@@ -342,7 +346,9 @@ var CommandScheduler = class {
       if (task.command.beforeExecute) {
         const shouldContinue = await task.command.beforeExecute();
         if (!shouldContinue) {
-          this.output.warning(`Command ${task.command.getName()} execution aborted by beforeExecute hook.`);
+          this.output.warning(
+            `Command ${task.command.getName()} execution aborted by beforeExecute hook.`
+          );
           return;
         }
       }
@@ -1146,7 +1152,7 @@ var ConsoleServiceProvider = class {
   /**
    * Creates a new ConsoleServiceProvider instance
    *
-   * @param {Container} container - The IoC container
+   * @param {IContainer} container - The IoC container
    * @param {string} commandsDir - The directory containing commands
    * @param {string} stubsDir - The directory containing stubs
    */
@@ -1156,9 +1162,9 @@ var ConsoleServiceProvider = class {
      * @private
      */
     this.registered = false;
-    this.container = container2;
-    this.commandsDir = commandsDir;
+    this.app = container2;
     this.stubsDir = stubsDir;
+    this.commandsDir = commandsDir;
   }
   /**
    * Register console services with the container
@@ -1186,13 +1192,13 @@ var ConsoleServiceProvider = class {
    * @param singleton - Whether to use singleton scope (default: true)
    */
   bindIfNotBound(symbol, constructor, constantValue, singleton = true) {
-    if (!this.container.isBound(symbol)) {
+    if (!this.app.isBound(symbol)) {
       if (constantValue) {
-        this.container.bind(symbol).toConstantValue(constantValue);
+        this.app.bind(symbol).toConstantValue(constantValue);
       } else if (singleton) {
-        this.container.bind(symbol).to(constructor).inSingletonScope();
+        this.app.bind(symbol).to(constructor).inSingletonScope();
       } else {
-        this.container.bind(symbol).to(constructor);
+        this.app.bind(symbol).to(constructor);
       }
     }
   }
@@ -1202,7 +1208,7 @@ var ConsoleServiceProvider = class {
    * @returns {Promise<IConsoleApplication>} The application instance
    */
   async boot() {
-    const app = this.container.get(tsTypes.IConsoleApplication.$);
+    const app = this.app.make(tsTypes.IConsoleApplication.$);
     await app.discoverCommands(this.commandsDir);
     return app;
   }

@@ -1,9 +1,9 @@
-import "reflect-metadata"
+import 'reflect-metadata'
 
 /**
  * Metadata key for options
  */
-export const OPTION_METADATA_KEY = Symbol("option")
+export const OPTION_METADATA_KEY = Symbol('option')
 
 /**
  * Option options interface
@@ -37,7 +37,7 @@ export function Option(options: OptionOptions): PropertyDecorator {
   return (target: Object, propertyKey: string | symbol) => {
     const metadata = {
       flags: options.flags,
-      description: options.description || "",
+      description: options.description || '',
       defaultValue: options.defaultValue,
       propertyKey,
     }

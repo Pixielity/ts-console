@@ -1,5 +1,5 @@
 import Table from 'cli-table3'
-import { injectable } from "inversify"
+import { injectable } from 'inversify'
 import type { ITableOutput } from '@pixielity/ts-types'
 import type { ITableStyle } from '@pixielity/ts-types'
 
@@ -75,12 +75,16 @@ export class TableOutput implements ITableOutput {
    * @param {ITableStyle} style - The table style
    * @returns {TableOutput} The table instance
    */
-  public static fromObjects(data: Record<string, any>[], columns: string[], style?: ITableStyle): TableOutput {
+  public static fromObjects(
+    data: Record<string, any>[],
+    columns: string[],
+    style?: ITableStyle,
+  ): TableOutput {
     const headers = columns
     const table = new TableOutput(headers, style)
 
     data.forEach((item) => {
-      const row = columns.map((column) => item[column] ?? "")
+      const row = columns.map((column) => item[column] ?? '')
       table.addRow(row)
     })
 

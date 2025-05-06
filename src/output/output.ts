@@ -1,5 +1,5 @@
-import chalk from "chalk"
-import type { IOutput } from "@pixielity/ts-types"
+import chalk from 'chalk'
+import type { IOutput } from '@pixielity/ts-types'
 
 /**
  * Implementation of the IOutput interface
@@ -31,7 +31,7 @@ export class Output implements IOutput {
    * @param {string} message - The error message to write
    */
   public error(message: string): void {
-    console.error(chalk.bold.red("ERROR") + ": " + message)
+    console.error(chalk.bold.red('ERROR') + ': ' + message)
   }
 
   /**
@@ -40,7 +40,7 @@ export class Output implements IOutput {
    * @param {string} message - The success message to write
    */
   public success(message: string): void {
-    console.log(chalk.bold.green("SUCCESS") + ": " + message)
+    console.log(chalk.bold.green('SUCCESS') + ': ' + message)
   }
 
   /**
@@ -49,7 +49,7 @@ export class Output implements IOutput {
    * @param {string} message - The info message to write
    */
   public info(message: string): void {
-    console.log(chalk.bold.blue("INFO") + ": " + message)
+    console.log(chalk.bold.blue('INFO') + ': ' + message)
   }
 
   /**
@@ -58,7 +58,7 @@ export class Output implements IOutput {
    * @param {string} message - The warning message to write
    */
   public warning(message: string): void {
-    console.log(chalk.bold.yellow("WARNING") + ": " + message)
+    console.log(chalk.bold.yellow('WARNING') + ': ' + message)
   }
 
   /**
@@ -67,6 +67,6 @@ export class Output implements IOutput {
    * @param {string} message - The comment message to write
    */
   public comment(message: string): void {
-    console.log(chalk.gray("// " + message))
+    console.log(chalk.gray('// ' + message))
   }
 }

@@ -1,6 +1,6 @@
-import { injectable } from "inversify"
-import type { ICommand } from "@pixielity/ts-types"
-import type { ICommandRegistry } from "@pixielity/ts-types"
+import { injectable } from 'inversify'
+import type { ICommand } from '@pixielity/ts-types'
+import type { ICommandRegistry } from '@pixielity/ts-types'
 
 /**
  * Registry for console commands

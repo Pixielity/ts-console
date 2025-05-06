@@ -1,8 +1,8 @@
-import "reflect-metadata"
-import { CommandScheduler } from "../src/scheduler/scheduler"
-import { CommandRegistry } from "../src/command/command-registry"
-import { BaseCommand } from "../src/command/base-command"
-import { jest } from "@jest/globals"
+import 'reflect-metadata'
+import { CommandScheduler } from '../src/scheduler/scheduler'
+import { CommandRegistry } from '../src/command/command-registry'
+import { BaseCommand } from '../src/command/base-command'
+import { jest } from '@jest/globals'
 
 /**
  * Mock command for testing
@@ -17,7 +17,7 @@ class MockCommand extends BaseCommand {
    * Creates a new MockCommand instance
    */
   constructor() {
-    super("mock", "A mock command for testing")
+    super('mock', 'A mock command for testing')
   }
 
   /**
@@ -31,7 +31,7 @@ class MockCommand extends BaseCommand {
   }
 }
 
-describe("CommandScheduler", () => {
+describe('CommandScheduler', () => {
   let registry: CommandRegistry
   let scheduler: CommandScheduler
   let mockCommand: MockCommand
@@ -48,33 +48,33 @@ describe("CommandScheduler", () => {
     scheduler = new CommandScheduler(registry)
   })
 
-  test("should schedule a command", () => {
+  test('should schedule a command', () => {
     // Verify the command is in the registry
-    expect(registry.has("mock")).toBe(true)
+    expect(registry.has('mock')).toBe(true)
 
-    scheduler.schedule("mock", { minute: "0" })
+    scheduler.schedule('mock', { minute: '0' })
 
     const tasks = scheduler.getTasks()
     expect(tasks).toHaveLength(1)
     expect(tasks[0].command).toBe(mockCommand)
   })
 
-  test("should throw when scheduling a non-existent command", () => {
-    expect(() => scheduler.schedule("unknown", { minute: "0" })).toThrow()
+  test('should throw when scheduling a non-existent command', () => {
+    expect(() => scheduler.schedule('unknown', { minute: '0' })).toThrow()
   })
 
-  test("should clear tasks", () => {
+  test('should clear tasks', () => {
     // Verify the command is in the registry
-    expect(registry.has("mock")).toBe(true)
+    expect(registry.has('mock')).toBe(true)
 
-    scheduler.schedule("mock", { minute: "0" })
+    scheduler.schedule('mock', { minute: '0' })
     expect(scheduler.getTasks()).toHaveLength(1)
 
     scheduler.clearTasks()
     expect(scheduler.getTasks()).toHaveLength(0)
   })
 
-  test("should start and stop the scheduler", () => {
+  test('should start and stop the scheduler', () => {
     // Mock setInterval and clearInterval
     const originalSetInterval = global.setInterval
     const originalClearInterval = global.clearInterval

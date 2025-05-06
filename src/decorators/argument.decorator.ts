@@ -1,9 +1,9 @@
-import "reflect-metadata"
+import 'reflect-metadata'
 
 /**
  * Metadata key for arguments
  */
-export const ARGUMENT_METADATA_KEY = Symbol("argument")
+export const ARGUMENT_METADATA_KEY = Symbol('argument')
 
 /**
  * Argument options interface
@@ -61,7 +61,7 @@ export function Argument(options: ArgumentOptions): PropertyDecorator {
 
     const metadata = {
       name,
-      description: options.description || "",
+      description: options.description || '',
       defaultValue: options.defaultValue,
       propertyKey,
     }

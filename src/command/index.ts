@@ -1,2 +1,2 @@
-export * from "./base-command"
-export * from "./command-registry"
+export * from './base-command'
+export * from './command-registry'

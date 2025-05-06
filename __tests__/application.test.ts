@@ -1,13 +1,13 @@
-import "reflect-metadata"
-import { Container } from "inversify"
-import { Application } from "../src/application"
-import { CommandRegistry } from "../src/command/command-registry"
-import { BaseCommand } from "../src/command/base-command"
-import type { IOutput } from "@pixielity/ts-types"
-import { ICommandRegistry } from "@pixielity/ts-types"
-import { IConsoleApplication } from "@pixielity/ts-types"
-import { ICommandCollector } from "@pixielity/ts-types"
-import { Output } from "../src/output"
+import 'reflect-metadata'
+import { Container } from 'inversify'
+import { Application } from '../src/application'
+import { CommandRegistry } from '../src/command/command-registry'
+import { BaseCommand } from '../src/command/base-command'
+import type { IOutput } from '@pixielity/ts-types'
+import { ICommandRegistry } from '@pixielity/ts-types'
+import { IConsoleApplication } from '@pixielity/ts-types'
+import { ICommandCollector } from '@pixielity/ts-types'
+import { Output } from '../src/output'
 
 /**
  * Mock command for testing
@@ -32,7 +32,7 @@ class MockCommand extends BaseCommand {
    * Creates a new MockCommand instance
    */
   constructor() {
-    super("mock", "A mock command for testing")
+    super('mock', 'A mock command for testing')
   }
 
   /**
@@ -152,7 +152,7 @@ class MockCommandCollector implements ICommandCollector {
   }
 }
 
-describe("Application", () => {
+describe('Application', () => {
   let container: Container
   let app: Application
   let mockCommand: MockCommand
@@ -183,14 +183,14 @@ describe("Application", () => {
     mockCommand = new MockCommand()
   })
 
-  test("should register a command", () => {
+  test('should register a command', () => {
     // Register the command
     app.register(mockCommand)
 
-    expect(commandRegistry.get("mock")).toBe(mockCommand)
+    expect(commandRegistry.get('mock')).toBe(mockCommand)
   })
 
-  test("should execute a command", async () => {
+  test('should execute a command', async () => {
     // Create a new mock command for this test to avoid duplicate registration
     const testCommand = new MockCommand()
 
@@ -210,11 +210,11 @@ describe("Application", () => {
     expect(testCommand.afterExecuteCalled).toBe(true)
   })
 
-  test("should handle command not found", async () => {
+  test('should handle command not found', async () => {
     const mockOutput = new MockOutput()
 
     // Try to get a non-existent command
-    const command = commandRegistry.get("unknown")
+    const command = commandRegistry.get('unknown')
 
     expect(command).toBeUndefined()
   })

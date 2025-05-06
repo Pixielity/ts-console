@@ -76,7 +76,9 @@ exports.StubGenerator = class StubGenerator {
       fs__namespace.writeFileSync(outputPath, content);
       return true;
     } catch (error) {
-      console.error(`Error generating file: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(
+        `Error generating file: ${error instanceof Error ? error.message : String(error)}`
+      );
       return false;
     }
   }
@@ -89,7 +91,9 @@ exports.StubGenerator = class StubGenerator {
     try {
       return fs__namespace.readdirSync(this.stubsDir).filter((file) => file.endsWith(".stub")).map((file) => file.replace(".stub", ""));
     } catch (error) {
-      console.error(`Error getting available stubs: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(
+        `Error getting available stubs: ${error instanceof Error ? error.message : String(error)}`
+      );
       return [];
     }
   }

@@ -1,9 +1,9 @@
-import "reflect-metadata"
+import 'reflect-metadata'
 
 /**
  * Metadata key for injectable
  */
-export const INJECTABLE_METADATA_KEY = Symbol("injectable")
+export const INJECTABLE_METADATA_KEY = Symbol('injectable')
 
 /**
  * Injectable decorator
@@ -15,7 +15,7 @@ export const INJECTABLE_METADATA_KEY = Symbol("injectable")
 export function Injectable(): ClassDecorator {
   return (target: Function) => {
     // Get the design:paramtypes metadata, which contains the types of the constructor parameters
-    const paramTypes = Reflect.getMetadata("design:paramtypes", target) || []
+    const paramTypes = Reflect.getMetadata('design:paramtypes', target) || []
 
     // Store the parameter types as dependencies
     Reflect.defineMetadata(INJECTABLE_METADATA_KEY, paramTypes, target)

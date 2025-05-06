@@ -1,5 +1,4 @@
-import { Container } from 'inversify';
-import { IServiceProvider, IConsoleApplication } from '@pixielity/ts-types';
+import { IServiceProvider, IContainer, IConsoleApplication } from '@pixielity/ts-types';
 
 /**
  * Console Service Provider
@@ -11,7 +10,7 @@ declare class ConsoleServiceProvider implements IServiceProvider {
      * The IoC container instance
      * @protected
      */
-    protected container: Container;
+    app: IContainer;
     /**
      * The commands directory path
      * @protected
@@ -30,11 +29,11 @@ declare class ConsoleServiceProvider implements IServiceProvider {
     /**
      * Creates a new ConsoleServiceProvider instance
      *
-     * @param {Container} container - The IoC container
+     * @param {IContainer} container - The IoC container
      * @param {string} commandsDir - The directory containing commands
      * @param {string} stubsDir - The directory containing stubs
      */
-    constructor(container: Container, commandsDir?: string, stubsDir?: string);
+    constructor(container: IContainer, commandsDir?: string, stubsDir?: string);
     /**
      * Register console services with the container
      */

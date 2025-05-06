@@ -1,8 +1,8 @@
-import cliProgress from "cli-progress"
-import chalk from "chalk"
-import type { IProgressBar } from "@pixielity/ts-types"
-import type { IProgressBarFormat } from "@pixielity/ts-types"
-import { injectable } from "inversify"
+import cliProgress from 'cli-progress'
+import chalk from 'chalk'
+import type { IProgressBar } from '@pixielity/ts-types'
+import type { IProgressBarFormat } from '@pixielity/ts-types'
+import { injectable } from 'inversify'
 
 /**
  * Progress bar utility class
@@ -25,9 +25,10 @@ export class ProgressBar implements IProgressBar {
    */
   constructor(total = 100, format?: IProgressBarFormat) {
     this.bar = new cliProgress.SingleBar({
-      format: format?.format || `${chalk.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
-      barCompleteChar: format?.barCompleteChar || "\u2588",
-      barIncompleteChar: format?.barIncompleteChar || "\u2591",
+      format:
+        format?.format || `${chalk.cyan('{bar}')} {percentage}% | ETA: {eta}s | {value}/{total}`,
+      barCompleteChar: format?.barCompleteChar || '\u2588',
+      barIncompleteChar: format?.barIncompleteChar || '\u2591',
     })
 
     this.bar.start(total, 0)
@@ -67,9 +68,9 @@ export class ProgressBar implements IProgressBar {
    */
   public static createMultiBar(): cliProgress.MultiBar {
     return new cliProgress.MultiBar({
-      format: `${chalk.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
-      barCompleteChar: "\u2588",
-      barIncompleteChar: "\u2591",
+      format: `${chalk.cyan('{bar}')} {percentage}% | ETA: {eta}s | {value}/{total}`,
+      barCompleteChar: '\u2588',
+      barIncompleteChar: '\u2591',
     })
   }
 }

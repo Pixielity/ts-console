@@ -1,2 +1,2 @@
-export * from "./container"
-export * from "./injectable.decorator"
+export * from './container'
+export * from './injectable.decorator'

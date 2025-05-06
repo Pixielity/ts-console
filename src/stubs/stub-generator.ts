@@ -1,7 +1,7 @@
-import * as fs from "fs"
-import * as path from "path"
-import { injectable } from "inversify"
-import type { IStubGenerator } from "@pixielity/ts-types"
+import * as fs from 'fs'
+import * as path from 'path'
+import { injectable } from 'inversify'
+import type { IStubGenerator } from '@pixielity/ts-types'
 
 /**
  * Stub Generator class
@@ -33,7 +33,11 @@ export class StubGenerator implements IStubGenerator {
    * @param {Record<string, string>} replacements - Map of placeholders to their replacements
    * @returns {boolean} True if the file was generated successfully, false otherwise
    */
-  public generate(stubName: string, outputPath: string, replacements: Record<string, string>): boolean {
+  public generate(
+    stubName: string,
+    outputPath: string,
+    replacements: Record<string, string>,
+  ): boolean {
     try {
       const stubPath = path.join(this.stubsDir, `${stubName}.stub`)
 
@@ -41,11 +45,11 @@ export class StubGenerator implements IStubGenerator {
         throw new Error(`Stub template "${stubName}" not found.`)
       }
 
-      let content = fs.readFileSync(stubPath, "utf8")
+      let content = fs.readFileSync(stubPath, 'utf8')
 
       // Replace placeholders with their values
       for (const [placeholder, value] of Object.entries(replacements)) {
-        content = content.replace(new RegExp(`\\{\\{${placeholder}\\}\\}`, "g"), value)
+        content = content.replace(new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g'), value)
       }
 
       // Create directory if it doesn't exist
@@ -59,7 +63,9 @@ export class StubGenerator implements IStubGenerator {
 
       return true
     } catch (error) {
-      console.error(`Error generating file: ${error instanceof Error ? error.message : String(error)}`)
+      console.error(
+        `Error generating file: ${error instanceof Error ? error.message : String(error)}`,
+      )
       return false
     }
   }
@@ -73,10 +79,12 @@ export class StubGenerator implements IStubGenerator {
     try {
       return fs
         .readdirSync(this.stubsDir)
-        .filter((file) => file.endsWith(".stub"))
-        .map((file) => file.replace(".stub", ""))
+        .filter((file) => file.endsWith('.stub'))
+        .map((file) => file.replace('.stub', ''))
     } catch (error) {
-      console.error(`Error getting available stubs: ${error instanceof Error ? error.message : String(error)}`)
+      console.error(
+        `Error getting available stubs: ${error instanceof Error ? error.message : String(error)}`,
+      )
       return []
     }
   }

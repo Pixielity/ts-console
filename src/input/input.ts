@@ -1,4 +1,4 @@
-import type { IInput } from "@pixielity/ts-types"
+import type { IInput } from '@pixielity/ts-types'
 
 /**
  * Implementation of the IInput interface
@@ -111,32 +111,32 @@ export class Input implements IInput {
       const arg = argv[i]
 
       // Handle options (--option or -o)
-      if (arg.startsWith("--")) {
+      if (arg.startsWith('--')) {
         const optName = arg.substring(2)
 
         // Handle --option=value
-        if (optName.includes("=")) {
-          const [name, value] = optName.split("=", 2)
+        if (optName.includes('=')) {
+          const [name, value] = optName.split('=', 2)
           this.opts[name] = value
         } else {
           // Handle --option value or --option (boolean flag)
-          if (i + 1 < argv.length && !argv[i + 1].startsWith("-")) {
+          if (i + 1 < argv.length && !argv[i + 1].startsWith('-')) {
             this.opts[optName] = argv[i + 1]
             i++
           } else {
             this.opts[optName] = true
           }
         }
-      } else if (arg.startsWith("-")) {
+      } else if (arg.startsWith('-')) {
         const optName = arg.substring(1)
 
         // Handle -o=value
-        if (optName.includes("=")) {
-          const [name, value] = optName.split("=", 2)
+        if (optName.includes('=')) {
+          const [name, value] = optName.split('=', 2)
           this.opts[name] = value
         } else {
           // Handle -o value or -o (boolean flag)
-          if (i + 1 < argv.length && !argv[i + 1].startsWith("-")) {
+          if (i + 1 < argv.length && !argv[i + 1].startsWith('-')) {
             this.opts[optName] = argv[i + 1]
             i++
           } else {

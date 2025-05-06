@@ -1,24 +1,24 @@
 // Core exports
-export * from "./command"
-export * from "./application"
+export * from './command'
+export * from './application'
 
 // Input/Output exports
-export * from "./input"
-export * from "./output"
+export * from './input'
+export * from './output'
 
 // Commands exports
-export * from "./commands"
+export * from './commands'
 
 // Stubs exports
-export * from "./stubs"
+export * from './stubs'
 
 // Decorators exports
-export * from "./decorators"
+export * from './decorators'
 // UI exports
-export * from "./ui"
+export * from './ui'
 
 // DI exports
-export * from "./di"
+export * from './di'
 
 // Discovery exports
-export * from "./discovery/command-collector"
+export * from './discovery/command-collector'

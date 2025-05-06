@@ -1,6 +1,6 @@
 import type { Container } from 'inversify'
 import * as path from 'path'
-import type { IServiceProvider } from '@pixielity/ts-types'
+import type { IContainer, IServiceProvider } from '@pixielity/ts-types'
 import { CommandRegistry } from '../command/command-registry'
 import { StubGenerator } from '../stubs/stub-generator'
 import { CommandScheduler } from '../scheduler/scheduler'
@@ -28,7 +28,7 @@ export class ConsoleServiceProvider implements IServiceProvider {
    * The IoC container instance
    * @protected
    */
-  protected container: Container
+  public app: IContainer
 
   /**
    * The commands directory path
@@ -51,18 +51,18 @@ export class ConsoleServiceProvider implements IServiceProvider {
   /**
    * Creates a new ConsoleServiceProvider instance
    *
-   * @param {Container} container - The IoC container
+   * @param {IContainer} container - The IoC container
    * @param {string} commandsDir - The directory containing commands
    * @param {string} stubsDir - The directory containing stubs
    */
   constructor(
-    container: Container,
+    container: IContainer,
     commandsDir = path.join(process.cwd(), 'src/commands'),
     stubsDir = path.join(process.cwd(), 'src/stubs/templates'),
   ) {
-    this.container = container
-    this.commandsDir = commandsDir
+    this.app = container
     this.stubsDir = stubsDir
+    this.commandsDir = commandsDir
   }
 
   /**
@@ -106,13 +106,13 @@ export class ConsoleServiceProvider implements IServiceProvider {
     constantValue?: any,
     singleton = true,
   ): void {
-    if (!this.container.isBound(symbol)) {
+    if (!this.app.isBound(symbol)) {
       if (constantValue) {
-        this.container.bind(symbol).toConstantValue(constantValue)
+        this.app.bind(symbol).toConstantValue(constantValue)
       } else if (singleton) {
-        this.container.bind(symbol).to(constructor).inSingletonScope()
+        this.app.bind(symbol).to(constructor).inSingletonScope()
       } else {
-        this.container.bind(symbol).to(constructor)
+        this.app.bind(symbol).to(constructor)
       }
     }
   }
@@ -124,7 +124,7 @@ export class ConsoleServiceProvider implements IServiceProvider {
    */
   public async boot(): Promise<IConsoleApplication> {
     // Get the application from the container using the interface
-    const app = this.container.get<IConsoleApplication>(IConsoleApplication.$)
+    const app = this.app.make<IConsoleApplication>(IConsoleApplication.$)
 
     // Discover commands
     await app.discoverCommands(this.commandsDir)

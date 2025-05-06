@@ -1,10 +1,10 @@
-import { injectable, inject } from "inversify"
-import { ICommandRegistry } from "@pixielity/ts-types"
-import type { ICommandScheduler } from "@pixielity/ts-types"
-import type { IScheduleExpression } from "@pixielity/ts-types"
-import type { IScheduledTask } from "@pixielity/ts-types"
+import { injectable, inject } from 'inversify'
+import { ICommandRegistry } from '@pixielity/ts-types'
+import type { ICommandScheduler } from '@pixielity/ts-types'
+import type { IScheduleExpression } from '@pixielity/ts-types'
+import type { IScheduledTask } from '@pixielity/ts-types'
 
-import { Output } from "../output/output"
+import { Output } from '../output/output'
 
 /**
  * Command scheduler class
@@ -42,9 +42,7 @@ export class CommandScheduler implements ICommandScheduler {
    *
    * @param {ICommandRegistry} commandRegistry - The command registry
    */
-  constructor(
-    @inject(ICommandRegistry.$) commandRegistry: ICommandRegistry,
-  ) {
+  constructor(@inject(ICommandRegistry.$) commandRegistry: ICommandRegistry) {
     this.commandRegistry = commandRegistry
     this.output = new Output()
   }
@@ -93,7 +91,7 @@ export class CommandScheduler implements ICommandScheduler {
     }
 
     this.timer = setInterval(() => this.tick(), interval)
-    this.output.info("Scheduler started.")
+    this.output.info('Scheduler started.')
 
     return this
   }
@@ -107,7 +105,7 @@ export class CommandScheduler implements ICommandScheduler {
     if (this.timer) {
       clearInterval(this.timer)
       this.timer = undefined
-      this.output.info("Scheduler stopped.")
+      this.output.info('Scheduler stopped.')
     }
 
     return this
@@ -154,7 +152,9 @@ export class CommandScheduler implements ICommandScheduler {
       if (task.command.beforeExecute) {
         const shouldContinue = await task.command.beforeExecute()
         if (!shouldContinue) {
-          this.output.warning(`Command ${task.command.getName()} execution aborted by beforeExecute hook.`)
+          this.output.warning(
+            `Command ${task.command.getName()} execution aborted by beforeExecute hook.`,
+          )
           return
         }
       }
@@ -213,7 +213,7 @@ export class CommandScheduler implements ICommandScheduler {
     next.setMinutes(next.getMinutes() + 1)
 
     // Handle minute
-    if (expression.minute !== undefined && expression.minute !== "*") {
+    if (expression.minute !== undefined && expression.minute !== '*') {
       const minute = Number(expression.minute)
       next.setMinutes(minute)
       if (next <= now) {
@@ -222,7 +222,7 @@ export class CommandScheduler implements ICommandScheduler {
     }
 
     // Handle hour
-    if (expression.hour !== undefined && expression.hour !== "*") {
+    if (expression.hour !== undefined && expression.hour !== '*') {
       const hour = Number(expression.hour)
       next.setHours(hour)
       if (next <= now) {
@@ -231,7 +231,7 @@ export class CommandScheduler implements ICommandScheduler {
     }
 
     // Handle day of month
-    if (expression.dayOfMonth !== undefined && expression.dayOfMonth !== "*") {
+    if (expression.dayOfMonth !== undefined && expression.dayOfMonth !== '*') {
       const day = Number(expression.dayOfMonth)
       next.setDate(day)
       if (next <= now) {
@@ -240,7 +240,7 @@ export class CommandScheduler implements ICommandScheduler {
     }
 
     // Handle month
-    if (expression.month !== undefined && expression.month !== "*") {
+    if (expression.month !== undefined && expression.month !== '*') {
       const month = Number(expression.month) - 1 // JavaScript months are 0-based
       next.setMonth(month)
       if (next <= now) {
@@ -249,7 +249,7 @@ export class CommandScheduler implements ICommandScheduler {
     }
 
     // Handle day of week
-    if (expression.dayOfWeek !== undefined && expression.dayOfWeek !== "*") {
+    if (expression.dayOfWeek !== undefined && expression.dayOfWeek !== '*') {
       const dayOfWeek = Number(expression.dayOfWeek)
       const currentDayOfWeek = next.getDay()
       const daysToAdd = (dayOfWeek - currentDayOfWeek + 7) % 7

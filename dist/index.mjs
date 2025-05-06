@@ -1884,7 +1884,9 @@ var StubGenerator = class {
       fs2.writeFileSync(outputPath, content);
       return true;
     } catch (error) {
-      console.error(`Error generating file: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(
+        `Error generating file: ${error instanceof Error ? error.message : String(error)}`
+      );
       return false;
     }
   }
@@ -1897,7 +1899,9 @@ var StubGenerator = class {
     try {
       return fs2.readdirSync(this.stubsDir).filter((file) => file.endsWith(".stub")).map((file) => file.replace(".stub", ""));
     } catch (error) {
-      console.error(`Error getting available stubs: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(
+        `Error getting available stubs: ${error instanceof Error ? error.message : String(error)}`
+      );
       return [];
     }
   }
