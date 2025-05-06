@@ -32,6 +32,11 @@ declare class Application implements IConsoleApplication {
      */
     private program;
     /**
+     * Map of shortcuts to command names
+     * @private
+     */
+    private shortcutMap;
+    /**
      * Creates a new Console Application instance
      *
      * @param {ICommandRegistry} commandRegistry - The command registry
@@ -47,6 +52,14 @@ declare class Application implements IConsoleApplication {
      * @private
      */
     private addGlobalOptions;
+    /**
+     * Register command-specific shortcuts
+     *
+     * @param {string} commandName - The name of the command
+     * @param {CommandShortcut[]} shortcuts - The shortcuts to register
+     * @private
+     */
+    private registerCommandShortcuts;
     /**
      * Handle global options/shortcuts
      *

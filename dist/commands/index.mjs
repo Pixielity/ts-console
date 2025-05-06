@@ -1,4 +1,4 @@
-import chalk3 from 'chalk';
+import chalk5 from 'chalk';
 import { ICommandRegistry, IStubGenerator, ICommandScheduler, ICommand, QuestionType } from '@pixielity/ts-types';
 import 'reflect-metadata';
 import { Container, injectable, inject } from 'inversify';
@@ -172,7 +172,7 @@ var Output = class {
    * @param {string} message - The error message to write
    */
   error(message) {
-    console.error(chalk3.bold.red("ERROR") + ": " + message);
+    console.error(chalk5.bold.red("ERROR") + ": " + message);
   }
   /**
    * Writes a success message to the output
@@ -180,7 +180,7 @@ var Output = class {
    * @param {string} message - The success message to write
    */
   success(message) {
-    console.log(chalk3.bold.green("SUCCESS") + ": " + message);
+    console.log(chalk5.bold.green("SUCCESS") + ": " + message);
   }
   /**
    * Writes an info message to the output
@@ -188,7 +188,7 @@ var Output = class {
    * @param {string} message - The info message to write
    */
   info(message) {
-    console.log(chalk3.bold.blue("INFO") + ": " + message);
+    console.log(chalk5.bold.blue("INFO") + ": " + message);
   }
   /**
    * Writes a warning message to the output
@@ -196,7 +196,7 @@ var Output = class {
    * @param {string} message - The warning message to write
    */
   warning(message) {
-    console.log(chalk3.bold.yellow("WARNING") + ": " + message);
+    console.log(chalk5.bold.yellow("WARNING") + ": " + message);
   }
   /**
    * Writes a comment message to the output
@@ -204,7 +204,7 @@ var Output = class {
    * @param {string} message - The comment message to write
    */
   comment(message) {
-    console.log(chalk3.gray("// " + message));
+    console.log(chalk5.gray("// " + message));
   }
 };
 var ARGUMENT_METADATA_KEY = Symbol("argument");
@@ -274,85 +274,78 @@ function Option(options) {
 // src/command/base-command.ts
 var BaseCommand = class {
   /**
-   * Creates a new BaseCommand instance
+   * Creates a new instance of the BaseCommand.
    *
-   * @param {string} [name] - The name of the command (optional)
-   * @param {string} [description] - The description of the command (optional)
+   * @param name - The name of the command (optional if using decorator)
+   * @param description - The description of the command
+   * @throws Will throw if name is missing and no decorator metadata is found.
    */
   constructor(name, description = "") {
-    if (name === void 0 || name === null) {
-      const metadata = Reflect.getMetadata(COMMAND_METADATA_KEY, this.constructor);
-      if (metadata && metadata.name) {
-        this.name = metadata.name;
-        if (!description && metadata.description) {
-          this.description = metadata.description;
-        } else {
-          this.description = description;
-        }
-      } else {
-        throw new Error(
-          `Command name is required. Either provide it in the constructor or use the @Command decorator.`
-        );
-      }
-    } else {
+    const metadata = Reflect.getMetadata(COMMAND_METADATA_KEY, this.constructor);
+    if (!name && (metadata == null ? void 0 : metadata.name)) {
+      this.name = metadata.name;
+      this.description = description || metadata.description || "";
+    } else if (name) {
       this.name = name;
       this.description = description;
+    } else {
+      throw new Error(`Command name is required. Provide it via constructor or @Command decorator.`);
     }
     this.input = new Input([]);
     this.output = new Output();
   }
   /**
-   * Gets the name of the command
+   * Returns the name of the command.
    *
-   * @returns {string} The command name
+   * @returns The command name.
    */
   getName() {
     return this.name;
   }
   /**
-   * Gets the description of the command
+   * Returns the description of the command.
    *
-   * @returns {string} The command description
+   * @returns The command description.
    */
   getDescription() {
     return this.description;
   }
   /**
-   * Sets the input instance
+   * Sets the input instance used by this command.
    *
-   * @param {IInput} input - The input instance
+   * @param input - The input instance.
    */
   setInput(input) {
     this.input = input;
   }
   /**
-   * Gets the input instance
+   * Retrieves the current input instance.
    *
-   * @returns {IInput} The input instance
+   * @returns The input instance.
    */
   getInput() {
     return this.input;
   }
   /**
-   * Sets the output instance
+   * Sets the output instance used by this command.
    *
-   * @param {IOutput} output - The output instance
+   * @param output - The output instance.
    */
   setOutput(output) {
     this.output = output;
   }
   /**
-   * Gets the output instance
+   * Retrieves the current output instance.
    *
-   * @returns {IOutput} The output instance
+   * @returns The output instance.
    */
   getOutput() {
     return this.output;
   }
   /**
-   * Sets the command arguments
+   * Sets multiple arguments for the command.
    *
-   * @param {string[]} args - The command arguments
+   * @param args - Positional arguments as an array.
    */
   setArguments(args) {
     args.forEach((arg, index) => {
@@ -360,9 +353,36 @@ var BaseCommand = class {
     });
   }
   /**
-   * Sets the command options
+   * Sets a single named argument.
    *
-   * @param {Record<string, any>} options - The command options
+   * @param key - The argument name.
+   * @param value - The argument value.
+   */
+  setArgument(key, value) {
+    this.input.args[key] = value;
+  }
+  /**
+   * Retrieves all arguments as a key-value object.
+   *
+   * @returns Object containing all arguments.
+   */
+  getArguments() {
+    return this.input.args || {};
+  }
+  /**
+   * Retrieves a single argument by name.
+   *
+   * @param key - The argument name.
+   * @returns The value of the argument or undefined if not found.
+   */
+  getArgument(key) {
+    var _a;
+    return (_a = this.input.args) == null ? void 0 : _a[key];
+  }
+  /**
+   * Sets multiple options for the command.
+   *
+   * @param options - Object of option keys and values.
    */
   setOptions(options) {
     Object.entries(options).forEach(([key, value]) => {
@@ -370,91 +390,117 @@ var BaseCommand = class {
     });
   }
   /**
-   * Configures the command with options and arguments
+   * Sets a single named option.
    *
-   * This method should be overridden by subclasses to define
-   * command-specific options and arguments.
+   * @param key - The option name.
+   * @param value - The option value.
+   */
+  setOption(key, value) {
+    this.input.opts[key] = value;
+  }
+  /**
+   * Retrieves all options as a key-value object.
+   *
+   * @returns Object containing all options.
+   */
+  getOptions() {
+    return this.input.opts || {};
+  }
+  /**
+   * Retrieves a single option by name.
+   *
+   * @param key - The option name.
+   * @returns The value of the option or undefined if not found.
+   */
+  getOption(key) {
+    var _a;
+    return (_a = this.input.opts) == null ? void 0 : _a[key];
+  }
+  /**
+   * Configures arguments and options.
+   *
+   * Should be overridden in the subclass to define expected inputs.
    */
   configure() {
   }
   /**
-   * Hook that runs before command execution
+   * Lifecycle hook that runs before command execution.
    *
-   * @returns {Promise<boolean>} True if execution should continue, false to abort
+   * Override this method to add pre-execution checks or setup.
+   *
+   * @returns True if execution should proceed, false to abort.
    */
   async beforeExecute() {
     return true;
   }
   /**
-   * Hook that runs after command execution
+   * Lifecycle hook that runs after command execution.
    *
-   * @param {number | void} exitCode - The exit code from the command
-   * @returns {Promise<void>}
+   * Override this method to add post-processing or cleanup.
+   *
+   * @param exitCode - The result of command execution.
    */
   async afterExecute(exitCode) {
   }
   /**
-   * Writes a line to the output
+   * Writes a simple message line to output.
    *
-   * @param {string} message - The message to write
+   * @param message - The message to write.
    */
   line(message = "") {
     this.output.writeln(message);
   }
   /**
-   * Writes an info message to the output
+   * Writes an informational message to output.
    *
-   * @param {string} message - The message to write
+   * @param message - The message to write.
    */
   info(message) {
     this.output.info(message);
   }
   /**
-   * Writes a success message to the output
+   * Writes a success message to output.
    *
-   * @param {string} message - The message to write
+   * @param message - The message to write.
    */
   success(message) {
     this.output.success(message);
   }
   /**
-   * Writes an error message to the output
+   * Writes an error message to output.
    *
-   * @param {string} message - The message to write
+   * @param message - The message to write.
    */
   error(message) {
     this.output.error(message);
   }
   /**
-   * Writes a warning message to the output
+   * Writes a warning message to output.
    *
-   * @param {string} message - The message to write
+   * @param message - The message to write.
    */
   warning(message) {
     this.output.warning(message);
   }
   /**
-   * Writes a comment message to the output
+   * Writes a comment-style message to output.
    *
-   * @param {string} message - The message to write
+   * @param message - The message to write.
    */
   comment(message) {
     this.output.comment(message);
   }
 };
 /**
- * Success exit code (0)
- * @static
+ * Exit code for successful execution.
  */
 BaseCommand.SUCCESS = 0;
 /**
- * Failure exit code (1)
- * @static
+ * Exit code indicating a general failure.
  */
 BaseCommand.FAILURE = 1;
 /**
- * Invalid input exit code (2)
- * @static
+ * Exit code for invalid user input.
  */
 BaseCommand.INVALID = 2;
 var Ask = class {
@@ -707,7 +753,7 @@ var ProgressBar = class {
    */
   constructor(total = 100, format) {
     this.bar = new cliProgress.SingleBar({
-      format: (format == null ? void 0 : format.format) || `${chalk3.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
+      format: (format == null ? void 0 : format.format) || `${chalk5.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
       barCompleteChar: (format == null ? void 0 : format.barCompleteChar) || "\u2588",
       barIncompleteChar: (format == null ? void 0 : format.barIncompleteChar) || "\u2591"
     });
@@ -744,7 +790,7 @@ var ProgressBar = class {
    */
   static createMultiBar() {
     return new cliProgress.MultiBar({
-      format: `${chalk3.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
+      format: `${chalk5.cyan("{bar}")} {percentage}% | ETA: {eta}s | {value}/{total}`,
       barCompleteChar: "\u2588",
       barIncompleteChar: "\u2591"
     });
@@ -840,11 +886,11 @@ var DemoCommand = class extends BaseCommand {
     this.line();
     this.success("Survey complete!");
     this.line();
-    this.line(`Name: ${chalk3.cyan(name)}`);
-    this.line(`Age: ${chalk3.cyan(age)}`);
-    this.line(`Likes CLI: ${likesCli ? chalk3.green("Yes") : chalk3.red("No")}`);
-    this.line(`Favorite color: ${chalk3.cyan(favoriteColor)}`);
-    this.line(`Languages: ${languages.map((l) => chalk3.cyan(l)).join(", ")}`);
+    this.line(`Name: ${chalk5.cyan(name)}`);
+    this.line(`Age: ${chalk5.cyan(age)}`);
+    this.line(`Likes CLI: ${likesCli ? chalk5.green("Yes") : chalk5.red("No")}`);
+    this.line(`Favorite color: ${chalk5.cyan(favoriteColor)}`);
+    this.line(`Languages: ${languages.map((l) => chalk5.cyan(l)).join(", ")}`);
     this.line();
   }
   /**
@@ -932,7 +978,13 @@ __decorateClass([
 DemoCommand = __decorateClass([
   Command({
     name: "demo",
-    description: "Demonstrate UI features"
+    description: "Demonstrate UI features",
+    shortcuts: [
+      {
+        flag: "-d",
+        description: "Demonstrate UI features"
+      }
+    ]
   })
 ], DemoCommand);
 var GreetCommand = class extends BaseCommand {
@@ -953,22 +1005,22 @@ var GreetCommand = class extends BaseCommand {
       let coloredGreeting;
       switch (color) {
         case "red":
-          coloredGreeting = chalk3.red(greeting);
+          coloredGreeting = chalk5.red(greeting);
           break;
         case "green":
-          coloredGreeting = chalk3.green(greeting);
+          coloredGreeting = chalk5.green(greeting);
           break;
         case "blue":
-          coloredGreeting = chalk3.blue(greeting);
+          coloredGreeting = chalk5.blue(greeting);
           break;
         case "yellow":
-          coloredGreeting = chalk3.yellow(greeting);
+          coloredGreeting = chalk5.yellow(greeting);
           break;
         case "cyan":
-          coloredGreeting = chalk3.cyan(greeting);
+          coloredGreeting = chalk5.cyan(greeting);
           break;
         default:
-          coloredGreeting = chalk3.green(greeting);
+          coloredGreeting = chalk5.green(greeting);
       }
       this.line();
       this.line(coloredGreeting);
@@ -996,7 +1048,13 @@ __decorateClass([
 GreetCommand = __decorateClass([
   Command({
     name: "greet",
-    description: "Greet the user"
+    description: "Greet the user",
+    shortcuts: [
+      {
+        flag: "-g",
+        description: "Greet the user"
+      }
+    ]
   })
 ], GreetCommand);
 var HelpCommand = class extends BaseCommand {
@@ -1006,7 +1064,7 @@ var HelpCommand = class extends BaseCommand {
    * @param {ICommandRegistry} registry - The command registry
    */
   constructor(registry) {
-    super();
+    super("help", "Display help for a command");
     this.registry = registry;
   }
   /**
@@ -1017,7 +1075,6 @@ var HelpCommand = class extends BaseCommand {
   async execute() {
     try {
       const commandName = this.input.getArgument("0");
-      console.log("asdasd", commandName);
       if (!commandName) {
         this.error("Command name is required.");
         this.line("");
@@ -1029,8 +1086,39 @@ var HelpCommand = class extends BaseCommand {
         this.error(`Command "${commandName}" not found.`);
         return BaseCommand.FAILURE;
       }
-      this.line(`${command.getName()}: ${command.getDescription()}`);
+      const metadata = Reflect.getMetadata(COMMAND_METADATA_KEY, command.constructor) || {};
+      this.line(chalk5.bold(`${command.getName()}: ${command.getDescription()}`));
       this.line("");
+      if (metadata.aliases && metadata.aliases.length > 0) {
+        this.line(chalk5.cyan("Aliases:"));
+        metadata.aliases.forEach((alias) => {
+          this.line(`  ${chalk5.yellow(alias)}`);
+        });
+        this.line("");
+      }
+      if (metadata.shortcuts && metadata.shortcuts.length > 0) {
+        this.line(chalk5.cyan("Shortcuts:"));
+        metadata.shortcuts.forEach((shortcut) => {
+          this.line(`  ${chalk5.magenta(shortcut.flag)}: ${shortcut.description}`);
+        });
+        this.line("");
+      }
+      const argumentsMetadata = Reflect.getMetadata(ARGUMENT_METADATA_KEY, command.constructor) || [];
+      if (argumentsMetadata.length > 0) {
+        this.line(chalk5.cyan("Arguments:"));
+        argumentsMetadata.forEach((arg) => {
+          this.line(`  ${chalk5.green(arg.name)}: ${arg.description || "No description"}`);
+        });
+        this.line("");
+      }
+      const optionsMetadata = Reflect.getMetadata(OPTION_METADATA_KEY, command.constructor) || [];
+      if (optionsMetadata.length > 0) {
+        this.line(chalk5.cyan("Options:"));
+        optionsMetadata.forEach((opt) => {
+          this.line(`  ${chalk5.green(opt.flags)}: ${opt.description || "No description"}`);
+        });
+        this.line("");
+      }
       return BaseCommand.SUCCESS;
     } catch (error) {
       this.error(`An error occurred: ${error instanceof Error ? error.message : String(error)}`);
@@ -1041,7 +1129,13 @@ var HelpCommand = class extends BaseCommand {
 HelpCommand = __decorateClass([
   Command({
     name: "help",
-    description: "Display help for a command"
+    description: "Display help for a command",
+    shortcuts: [
+      {
+        flag: "-h, --help-cmd <command>",
+        description: "Display help for a specific command"
+      }
+    ]
   }),
   __decorateParam(0, inject(ICommandRegistry.$))
 ], HelpCommand);
@@ -1063,7 +1157,8 @@ var ListCommand = class extends BaseCommand {
   async execute() {
     try {
       const commands = this.registry.getAll();
-      this.line(chalk3.bold("Available commands:"));
+      this.line(chalk5.bold("Available commands:"));
+      this.line(chalk5.dim("Use command name, alias, or shortcut to run a command"));
       this.line("");
       if (commands.length === 0) {
         this.line("  No commands registered.");
@@ -1079,16 +1174,28 @@ var ListCommand = class extends BaseCommand {
         commandGroups[category].push(command);
       });
       for (const [category, groupCommands] of Object.entries(commandGroups)) {
-        this.line(chalk3.cyan(`${category.charAt(0).toUpperCase() + category.slice(1)} Commands:`));
-        const table = new TableOutput(["Command", "Aliases", "Description"]);
+        this.line(chalk5.cyan(`${category.charAt(0).toUpperCase() + category.slice(1)} Commands:`));
+        const table = new TableOutput(["Command", "Aliases", "Shortcuts", "Description"]);
         groupCommands.sort((a, b) => a.getName().localeCompare(b.getName()));
         groupCommands.forEach((command) => {
           const metadata = Reflect.getMetadata(COMMAND_METADATA_KEY, command.constructor) || {};
           const aliases = metadata.aliases ? metadata.aliases.join(", ") : "";
+          let shortcuts = "";
+          if (metadata.shortcuts && metadata.shortcuts.length > 0) {
+            shortcuts = metadata.shortcuts.map((s) => {
+              const shortFlag = s.flag.split(",")[0].trim();
+              return shortFlag;
+            }).join(", ");
+          }
           if (metadata.hidden) {
             return;
           }
-          table.addRow([chalk3.green(command.getName()), aliases ? chalk3.yellow(aliases) : "", command.getDescription()]);
+          table.addRow([
+            chalk5.green(command.getName()),
+            aliases ? chalk5.yellow(aliases) : "",
+            shortcuts ? chalk5.magenta(shortcuts) : "",
+            command.getDescription()
+          ]);
         });
         table.render();
         this.line("");
@@ -1104,7 +1211,13 @@ ListCommand = __decorateClass([
   Command({
     name: "list",
     description: "List all available commands",
-    aliases: ["commands"]
+    aliases: ["commands"],
+    shortcuts: [
+      {
+        flag: "-l, --list",
+        description: "List all available commands"
+      }
+    ]
   }),
   __decorateParam(0, inject(ICommandRegistry.$))
 ], ListCommand);
@@ -1164,7 +1277,7 @@ var MakeCommand = class extends BaseCommand {
       });
       if (success) {
         this.success(
-          `Command ${chalk3.green(this.commandName)} created successfully at ${chalk3.cyan(outputPath)}`
+          `Command ${chalk5.green(this.commandName)} created successfully at ${chalk5.cyan(outputPath)}`
         );
         return BaseCommand.SUCCESS;
       } else {

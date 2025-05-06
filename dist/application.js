@@ -1,10 +1,10 @@
 'use strict';
 
-var commander = require('commander');
-var chalk = require('chalk');
-var inversify = require('inversify');
 require('reflect-metadata');
-require('@pixielity/ts-types');
+var chalk = require('chalk');
+var commander = require('commander');
+var inversify = require('inversify');
+var tsTypes = require('@pixielity/ts-types');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
@@ -27,14 +27,7 @@ var __decorateClass = (decorators, target, key, kind) => {
       result = (decorator(result)) || result;
   return result;
 };
-var ARGUMENT_METADATA_KEY = Symbol("argument");
-var OPTION_METADATA_KEY = Symbol("option");
-new inversify.Container({
-  defaultScope: "Singleton"
-});
-
-// src/decorators/command.decorator.ts
-var COMMAND_METADATA_KEY = Symbol("command");
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 var Output = class {
   /**
    * Writes a message to the output
@@ -93,6 +86,14 @@ var Output = class {
     console.log(chalk__default.default.gray("// " + message));
   }
 };
+var ARGUMENT_METADATA_KEY = Symbol("argument");
+var OPTION_METADATA_KEY = Symbol("option");
+new inversify.Container({
+  defaultScope: "Singleton"
+});
+
+// src/decorators/command.decorator.ts
+var COMMAND_METADATA_KEY = Symbol("command");
 
 // src/application.ts
 exports.Application = class Application {
@@ -106,11 +107,16 @@ exports.Application = class Application {
    * @param {string} version - The version of the application
    */
   constructor(commandRegistry, commandCollector, commands = [], name = "Next.js Console", version = "1.0.0") {
+    /**
+     * Map of shortcuts to command names
+     * @private
+     */
+    this.shortcutMap = /* @__PURE__ */ new Map();
     this.name = name;
     this.version = version;
     this.commandRegistry = commandRegistry;
     this.commandCollector = commandCollector;
-    this.program = new commander.Command().name(this.name).version(this.version).description(`${this.name} - A Laravel/Symfony-inspired console for Next.js`).helpOption("-h, --help", "Display help for command").addHelpCommand("help [command]", "Display help for command");
+    this.program = new commander.Command().name(this.name).version(this.version).description(`${this.name} - A Laravel/Symfony-inspired console for Next.js`).helpOption("-h, --help", "Display help for command").helpCommand("help [command]", "Display help for command");
     this.addGlobalOptions();
     if (commands.length > 0) {
       this.registerCommands(commands);
@@ -122,7 +128,28 @@ exports.Application = class Application {
    * @private
    */
   addGlobalOptions() {
-    this.program.option("-l, --list", "List all available commands").option("-v, --version", "Display this application version").option("-g, --greet [name]", "Greet the user").option("-d, --demo [feature]", "Run the demo with optional feature").option("-m, --make <name>", "Create a new command");
+  }
+  /**
+   * Register command-specific shortcuts
+   *
+   * @param {string} commandName - The name of the command
+   * @param {CommandShortcut[]} shortcuts - The shortcuts to register
+   * @private
+   */
+  registerCommandShortcuts(commandName, shortcuts) {
+    shortcuts.forEach((shortcut) => {
+      const flagParts = shortcut.flag.split(",").map((part) => part.trim());
+      const shortFlag = flagParts[0];
+      this.program.option(
+        shortcut.flag,
+        `${shortcut.description} (shortcut for "${commandName}")`,
+        shortcut.defaultValue
+      );
+      this.shortcutMap.set(shortFlag, { command: commandName });
+      if (flagParts.length > 1) {
+        this.shortcutMap.set(flagParts[1], { command: commandName });
+      }
+    });
   }
   /**
    * Handle global options/shortcuts
@@ -169,6 +196,26 @@ exports.Application = class Application {
         makeCommand.setArguments([options.make]);
         await makeCommand.execute();
         return true;
+      }
+    }
+    for (const [flag, commandInfo] of this.shortcutMap.entries()) {
+      const optionName = flag.replace(/^-+/, "");
+      if (options[optionName] !== void 0) {
+        const command = this.commandRegistry.get(commandInfo.command);
+        if (command) {
+          command.setOutput(new Output());
+          if (commandInfo.args) {
+            command.setArguments(commandInfo.args);
+          }
+          if (commandInfo.options) {
+            command.setOptions(commandInfo.options);
+          }
+          if (typeof options[optionName] === "string") {
+            command.setArguments([options[optionName]]);
+          }
+          await command.execute();
+          return true;
+        }
       }
     }
     return false;
@@ -228,6 +275,7 @@ exports.Application = class Application {
    */
   setCommands(commands) {
     this.commandRegistry.clear();
+    this.shortcutMap.clear();
     this.program = new commander.Command().name(this.name).version(this.version).description(`${this.name} - A Laravel/Symfony-inspired console for Next.js`).helpOption("-h, --help", "Display help for command").addHelpCommand("help [command]", "Display help for command");
     this.addGlobalOptions();
     this.registerCommands(commands);
@@ -322,6 +370,9 @@ exports.Application = class Application {
     if (metadata.aliases && Array.isArray(metadata.aliases)) {
       commanderCommand.aliases(metadata.aliases);
     }
+    if (metadata.shortcuts && Array.isArray(metadata.shortcuts)) {
+      this.registerCommandShortcuts(command.getName(), metadata.shortcuts);
+    }
     this.program.addCommand(commanderCommand);
     this.processCommandMetadata(command, commanderCommand);
   }
@@ -368,7 +419,9 @@ exports.Application = class Application {
   }
 };
 exports.Application = __decorateClass([
-  inversify.injectable()
+  inversify.injectable(),
+  __decorateParam(0, inversify.inject(tsTypes.ICommandRegistry.$)),
+  __decorateParam(1, inversify.inject(tsTypes.ICommandCollector.$))
 ], exports.Application);
 //# sourceMappingURL=application.js.map
 //# sourceMappingURL=application.js.map
