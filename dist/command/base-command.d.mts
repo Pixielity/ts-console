@@ -1,4 +1,4 @@
-import { ICommand, IInput, IOutput, IAsk } from '@pixielity/ts-types';
+import { ICommand, IInput, IOutput, IAsk, IProgressBarFormat, IProgressBar, ITableStyle, ITableOutput } from '@pixielity/ts-types';
 
 /**
  * Abstract base class for console commands.
@@ -164,6 +164,26 @@ declare abstract class BaseCommand implements ICommand {
      */
     afterExecute(exitCode: number | void): Promise<void>;
     /**
+     * Ask utility class
+     *
+     * @returns Ask utility class
+     */
+    ask(): IAsk;
+    /**
+     * Creates a new ProgressBar instance
+     *
+     * @param {number} total - The total value
+     * @param {IProgressBarFormat} format - The format options
+     */
+    progress(total?: number, format?: IProgressBarFormat): IProgressBar;
+    /**
+     * Creates a new TableOutput instance
+     *
+     * @param {string[]} headers - The table headers
+     * @param {ITableStyle} style - The table style
+     */
+    table(headers?: string[], style?: ITableStyle): ITableOutput;
+    /**
      * Writes a simple message line to output.
      *
      * @param message - The message to write.
@@ -199,13 +219,6 @@ declare abstract class BaseCommand implements ICommand {
      * @param message - The message to write.
      */
     protected comment(message: string): void;
-    /**
-     * Ask utility class
-     *
-     * @param key - The option name.
-     * @returns Ask utility class
-     */
-    protected ask(message: string): IAsk;
 }
 
 export { BaseCommand };

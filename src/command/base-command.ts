@@ -1,10 +1,18 @@
-import type { IAsk, ICommand } from '@pixielity/ts-types'
+import type {
+  IAsk,
+  ICommand,
+  IProgressBar,
+  IProgressBarFormat,
+  ITableOutput,
+  ITableStyle,
+} from '@pixielity/ts-types'
 import type { IInput } from '@pixielity/ts-types'
 import type { IOutput } from '@pixielity/ts-types'
+
 import { Input } from '../input/input'
 import { Output } from '../output/output'
 import { COMMAND_METADATA_KEY } from '../decorators'
-import { Ask } from '@/ui'
+import { Ask, ProgressBar, TableOutput } from '../ui'
 
 /**
  * Abstract base class for console commands.
@@ -249,6 +257,35 @@ export abstract class BaseCommand implements ICommand {
   }
 
   /**
+   * Ask utility class
+   *
+   * @returns Ask utility class
+   */
+  public ask(): IAsk {
+    return Ask
+  }
+
+  /**
+   * Creates a new ProgressBar instance
+   *
+   * @param {number} total - The total value
+   * @param {IProgressBarFormat} format - The format options
+   */
+  public progress(total = 100, format?: IProgressBarFormat): IProgressBar {
+    return new ProgressBar(total, format)
+  }
+
+  /**
+   * Creates a new TableOutput instance
+   *
+   * @param {string[]} headers - The table headers
+   * @param {ITableStyle} style - The table style
+   */
+  public table(headers: string[] = [], style?: ITableStyle): ITableOutput {
+    return new TableOutput(headers, style)
+  }
+
+  /**
    * Writes a simple message line to output.
    *
    * @param message - The message to write.
@@ -300,15 +337,5 @@ export abstract class BaseCommand implements ICommand {
    */
   protected comment(message: string): void {
     this.output.comment(message)
-  }
-
-  /**
-   * Ask utility class
-   *
-   * @param key - The option name.
-   * @returns Ask utility class
-   */
-  protected ask(message: string): IAsk {
-    return Ask
   }
 }

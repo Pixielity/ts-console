@@ -700,6 +700,32 @@ var BaseCommand = class {
   async afterExecute(exitCode) {
   }
   /**
+   * Ask utility class
+   *
+   * @returns Ask utility class
+   */
+  ask() {
+    return Ask;
+  }
+  /**
+   * Creates a new ProgressBar instance
+   *
+   * @param {number} total - The total value
+   * @param {IProgressBarFormat} format - The format options
+   */
+  progress(total = 100, format) {
+    return new ProgressBar(total, format);
+  }
+  /**
+   * Creates a new TableOutput instance
+   *
+   * @param {string[]} headers - The table headers
+   * @param {ITableStyle} style - The table style
+   */
+  table(headers = [], style) {
+    return new TableOutput(headers, style);
+  }
+  /**
    * Writes a simple message line to output.
    *
    * @param message - The message to write.
@@ -746,15 +772,6 @@ var BaseCommand = class {
    */
   comment(message) {
     this.output.comment(message);
-  }
-  /**
-   * Ask utility class
-   *
-   * @param key - The option name.
-   * @returns Ask utility class
-   */
-  ask(message) {
-    return Ask;
   }
 };
 /**
