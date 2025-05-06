@@ -667,11 +667,13 @@ var BaseCommand = class {
    * Retrieves a single argument by name.
    *
    * @param key - The argument name.
+   * @param defaultValue - default value .
    * @returns The value of the argument or undefined if not found.
    */
-  getArgument(key) {
+  getArgument(key, defaultValue) {
     var _a;
-    return (_a = this.input.args) == null ? void 0 : _a[key];
+    const value = (_a = this.input.args) == null ? void 0 : _a[key];
+    return value !== void 0 ? value : defaultValue;
   }
   /**
    * Sets multiple options for the command.
@@ -704,11 +706,13 @@ var BaseCommand = class {
    * Retrieves a single option by name.
    *
    * @param key - The option name.
+   * @param defaultValue - default value .
    * @returns The value of the option or undefined if not found.
    */
-  getOption(key) {
+  getOption(key, defaultValue) {
     var _a;
-    return (_a = this.input.opts) == null ? void 0 : _a[key];
+    const value = (_a = this.input.opts) == null ? void 0 : _a[key];
+    return value !== void 0 ? value : defaultValue;
   }
   /**
    * Configures arguments and options.

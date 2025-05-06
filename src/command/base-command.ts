@@ -170,10 +170,13 @@ export abstract class BaseCommand implements ICommand {
    * Retrieves a single argument by name.
    *
    * @param key - The argument name.
+   * @param defaultValue - default value .
    * @returns The value of the argument or undefined if not found.
    */
-  public getArgument<T = any>(key: string): T | undefined {
-    return (this.input as any).args?.[key]
+  public getArgument<T = any>(key: string, defaultValue?: T): T | undefined {
+    const value = (this.input as any).args?.[key]
+
+    return value !== undefined ? value : defaultValue
   }
 
   /**
@@ -210,10 +213,13 @@ export abstract class BaseCommand implements ICommand {
    * Retrieves a single option by name.
    *
    * @param key - The option name.
+   * @param defaultValue - default value .
    * @returns The value of the option or undefined if not found.
    */
-  public getOption<T = any>(key: string): T | undefined {
-    return (this.input as any).opts?.[key]
+  public getOption<T = any>(key: string, defaultValue?: T): T | undefined {
+    const value = (this.input as any).opts?.[key]
+
+    return value !== undefined ? value : defaultValue
   }
 
   /**
