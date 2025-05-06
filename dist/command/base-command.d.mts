@@ -106,7 +106,7 @@ declare abstract class BaseCommand implements ICommand {
      * @param key - The argument name.
      * @returns The value of the argument or undefined if not found.
      */
-    getArgument(key: string): any;
+    getArgument<T = any>(key: string): T | undefined;
     /**
      * Sets multiple options for the command.
      *
@@ -132,7 +132,7 @@ declare abstract class BaseCommand implements ICommand {
      * @param key - The option name.
      * @returns The value of the option or undefined if not found.
      */
-    getOption(key: string): any;
+    getOption<T = any>(key: string): T | undefined;
     /**
      * Configures arguments and options.
      *

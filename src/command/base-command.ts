@@ -172,7 +172,7 @@ export abstract class BaseCommand implements ICommand {
    * @param key - The argument name.
    * @returns The value of the argument or undefined if not found.
    */
-  public getArgument(key: string): any {
+  public getArgument<T = any>(key: string): T | undefined {
     return (this.input as any).args?.[key]
   }
 
@@ -212,7 +212,7 @@ export abstract class BaseCommand implements ICommand {
    * @param key - The option name.
    * @returns The value of the option or undefined if not found.
    */
-  public getOption(key: string): any {
+  public getOption<T = any>(key: string): T | undefined {
     return (this.input as any).opts?.[key]
   }
 
